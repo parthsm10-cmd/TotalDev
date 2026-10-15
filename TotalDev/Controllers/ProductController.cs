@@ -36,6 +36,13 @@ public class ProductsController : Controller
                     return NotFound();
             }
 
+            // If not editing, prefill ItemCode with next numeric code
+            if (string.IsNullOrWhiteSpace(editId) && editProduct == null)
+            {
+                var nextCode = await _service.GetNextItemCodeAsync();
+                editProduct = new Product { ItemCode = nextCode };
+            }
+
             ViewBag.EditProduct = editProduct;
             return View(products);
         }
@@ -71,8 +78,9 @@ public class ProductsController : Controller
                 ViewBag.FormProduct = product;
                 return View("Index", await _service.GetAllAsync());
             }
-
+            
             if (isNew)
+                
                 await _service.CreateAsync(product);
             else if (!await _service.UpdateAsync(product))
                 return NotFound();
