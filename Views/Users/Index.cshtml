@@ -1,0 +1,125 @@
+@model List<TotalDev.Models.User>
+@using TotalDev.Models
+
+@{
+    ViewData["Title"] = "User Management";
+
+    var editUser = ViewBag.FormUser as User
+        ?? ViewBag.EditUser as User;
+
+    var isEdit = !string.IsNullOrWhiteSpace(editUser?.Id);
+}
+
+<div class="container mt-4">
+    <h2>User Management</h2>
+
+    @if (TempData["Success"] is string message)
+    {
+        <div class="alert alert-success">@message</div>
+    }
+
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            @(isEdit ? "Update User" : "Add User")
+        </div>
+
+        <div class="card-body">
+            <form asp-action="Save" method="post">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" name="Id" value="@editUser?.Id" />
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">User Code</label>
+                        <input name="UserCode" class="form-control" maxlength="50" required value="@editUser?.UserCode" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">User Name</label>
+                        <input name="UserName" class="form-control" maxlength="200" required value="@editUser?.UserName" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Mobile</label>
+                        <input name="Mobile" class="form-control" maxlength="20" value="@editUser?.Mobile" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">City</label>
+                        <input name="City" class="form-control" maxlength="100" value="@editUser?.City" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Address</label>
+                        <input name="Address" class="form-control" maxlength="500" value="@editUser?.Address" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Active</label>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="isActiveToggle" name="isActiveToggle" @(editUser != null && editUser.IsActive == 1 ? "checked" : "") />
+                            <label class="form-check-label" for="isActiveToggle">@(editUser != null && editUser.IsActive == 1 ? "Active" : "Inactive")</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">@(isEdit ? "Update User" : "Save User")</button>
+
+                    @if (isEdit)
+                    {
+                        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                    }
+                    else
+                    {
+                        <button type="reset" class="btn btn-secondary">Clear</button>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <h4>User List</h4>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>User Code</th>
+                    <th>User Name</th>
+                    <th>Mobile</th>
+                    <th>City</th>
+                    <th>Address</th>
+                    <th>Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.UserCode</td>
+                        <td>@item.UserName</td>
+                        <td>@item.Mobile</td>
+                        <td>@item.City</td>
+                        <td>@item.Address</td>
+                        <td>@(item.IsActive == 1 ? "Active" : "Inactive")</td>
+                        <td>
+                            <a asp-action="Index" asp-route-editId="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+
+                            <form asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Delete this user?');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

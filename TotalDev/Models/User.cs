@@ -32,4 +32,7 @@ public class User
     [BsonElement("address")]
     [StringLength(500)]
     public string? Address { get; set; }
+
+    // 1 = active, 0 = inactive
+    public int IsActive { get; set; } = 1;
 }
