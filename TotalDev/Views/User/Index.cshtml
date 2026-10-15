@@ -1,0 +1,570 @@
+﻿
+@model List<TotalDev.Models.User>
+@using TotalDev.Models
+
+@{
+    ViewData["Title"] = "User Management";
+
+    var editUser = ViewBag.FormUser as User
+        ?? ViewBag.EditUser as User;
+
+    var isEdit = !string.IsNullOrWhiteSpace(editUser?.Id);
+}
+
+<style>
+    .user-page {
+        padding: 28px 0 40px;
+        color: #24352b;
+    }
+
+    .page-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 25px;
+    }
+
+        .page-heading h2 {
+            color: #205c3b;
+            font-size: 27px;
+            font-weight: 750;
+            margin: 0 0 5px;
+        }
+
+        .page-heading p {
+            color: #778279;
+            font-size: 14px;
+            margin: 0;
+        }
+
+    .user-count {
+        background: #e8f4eb;
+        color: #28744a;
+        padding: 10px 16px;
+        border-radius: 10px;
+        font-weight: 650;
+        white-space: nowrap;
+    }
+
+    .user-card {
+        background: #fff;
+        border: 1px solid #e3eae4;
+        border-radius: 13px;
+        overflow: hidden;
+        margin-bottom: 28px;
+        box-shadow: 0 4px 15px rgba(28, 65, 40, .045);
+    }
+
+    .user-card-header {
+        background: #f5f9f5;
+        border-bottom: 1px solid #e3eae4;
+        padding: 17px 22px;
+    }
+
+        .user-card-header h4 {
+            color: #205c3b;
+            font-size: 17px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+    .user-card-body {
+        padding: 23px;
+    }
+
+    .user-page .form-label {
+        color: #405047;
+        font-size: 13px;
+        font-weight: 650;
+        margin-bottom: 7px;
+    }
+
+    .user-page .form-control {
+        min-height: 43px;
+        border: 1px solid #dce5dd;
+        border-radius: 7px;
+        font-size: 14px;
+    }
+
+        .user-page .form-control:focus {
+            border-color: #5c9c70;
+            box-shadow: 0 0 0 3px rgba(40, 116, 74, .10);
+        }
+
+    .btn-pd {
+        background: #28744a;
+        color: #fff;
+        border: 1px solid #28744a;
+        border-radius: 7px;
+        padding: 10px 18px;
+        font-weight: 650;
+    }
+
+        .btn-pd:hover {
+            background: #205c3b;
+            color: #fff;
+        }
+
+    .btn-light-pd {
+        background: #fff;
+        color: #405047;
+        border: 1px solid #dce5dd;
+        border-radius: 7px;
+        padding: 10px 17px;
+    }
+
+        .btn-light-pd:hover {
+            background: #f3f7f3;
+        }
+
+    .list-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-bottom: 15px;
+    }
+
+        .list-header h4 {
+            color: #205c3b;
+            font-size: 19px;
+            font-weight: 750;
+            margin: 0 0 4px;
+        }
+
+    .search-box {
+        max-width: 300px;
+        width: 100%;
+    }
+
+        .search-box input {
+            min-height: 41px;
+            border-radius: 8px;
+        }
+
+    .table-shell {
+        border: 1px solid #e3eae4;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: 0 4px 15px rgba(28, 65, 40, .035);
+    }
+
+    .user-table {
+        margin: 0;
+        font-size: 13px;
+        vertical-align: middle;
+    }
+
+        .user-table thead th {
+            background: #f3f7f3;
+            color: #526256;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .35px;
+            white-space: nowrap;
+            padding: 15px 14px;
+            border-bottom: 1px solid #e0e8e1;
+        }
+
+        .user-table tbody td {
+            padding: 14px;
+            border-color: #edf1ed;
+        }
+
+        .user-table tbody tr:hover {
+            background: #f8fbf8;
+        }
+
+    .user-code {
+        color: #28744a;
+        font-weight: 700;
+    }
+
+    .user-name {
+        color: #293b30;
+        font-weight: 650;
+    }
+
+    .user-mobile {
+        white-space: nowrap;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+    }
+
+    .btn-edit,
+    .btn-delete {
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 12px;
+        font-weight: 650;
+    }
+
+    .btn-edit {
+        background: #fff5df;
+        border: 1px solid #f1dfb7;
+        color: #8b6414;
+    }
+
+        .btn-edit:hover {
+            background: #fbe9be;
+            color: #6d4c0b;
+        }
+
+    .btn-delete {
+        background: #fff0ef;
+        border: 1px solid #f2d5d2;
+        color: #b43c35;
+    }
+
+        .btn-delete:hover {
+            background: #fbe0de;
+            color: #922c27;
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 35px 15px !important;
+        color: #7b887e;
+    }
+
+        .empty-state strong {
+            display: block;
+            color: #435548;
+            margin-bottom: 5px;
+            font-size: 15px;
+        }
+
+    @@media (max-width: 576px) {
+        .user-page {
+            padding-top: 18px;
+        }
+
+        .page-heading h2 {
+            font-size: 23px;
+        }
+
+        .user-card-body {
+            padding: 16px;
+        }
+
+        .user-card-header {
+            padding: 15px 16px;
+        }
+
+        .search-box {
+            max-width: none;
+        }
+    }
+</style>
+
+<div class="container user-page">
+
+    <!-- Page heading -->
+    <div class="page-heading">
+        <div>
+            <h2>User Management</h2>
+            <p>Add, update and manage your shop users.</p>
+        </div>
+
+        <div class="user-count">
+            Total Users: @(Model?.Count ?? 0)
+        </div>
+    </div>
+
+    <!-- Success message -->
+    @if (TempData["Success"] is string message)
+    {
+        <div class="alert alert-success alert-dismissible fade show"
+             role="alert">
+            @message
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Validation errors -->
+    <div asp-validation-summary="All"
+         class="text-danger mb-3"></div>
+
+    <!-- Add / Update user form -->
+    <div class="user-card">
+        <div class="user-card-header">
+            <h4>@(isEdit ? "Update User Details" : "Add New User")</h4>
+        </div>
+
+        <div class="user-card-body">
+            <form asp-action="Save" method="post">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="Id"
+                       value="@editUser?.Id" />
+
+                <div class="row g-3">
+
+                    <div class="col-md-4">
+                        <label for="UserCode" class="form-label">
+                            User Code *
+                        </label>
+                        <input id="UserCode"
+                               name="UserCode"
+                               class="form-control"
+                               maxlength="50"
+                               placeholder="Enter user code"
+                               required
+                               readonly
+                               value="@editUser?.UserCode" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="UserName" class="form-label">
+                            User Name *
+                        </label>
+                        <input id="UserName"
+                               name="UserName"
+                               class="form-control"
+                               maxlength="200"
+                               placeholder="Enter full name"
+                               required
+                               value="@editUser?.UserName" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="Mobile" class="form-label">
+                            Mobile Number
+                        </label>
+                        <input id="Mobile"
+                               name="Mobile"
+                               type="tel"
+                               class="form-control"
+                               maxlength="20"
+                               placeholder="Enter mobile number"
+                               value="@editUser?.Mobile" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="Password" class="form-label">
+                            Password (numbers only) *
+                        </label>
+                        <input id="Password"
+                               name="Password"
+                               type="password"
+                               inputmode="numeric"
+                               pattern="[0-9]+"
+                               class="form-control"
+                               maxlength="100"
+                               placeholder="Enter numeric password"
+                               autocomplete="new-password"
+                               required
+                               value="" />
+
+                        @if (isEdit)
+                        {
+                            <small class="text-muted">
+                                Enter a new password when updating.
+                            </small>
+                        }
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="City" class="form-label">
+                            City
+                        </label>
+                        <input id="City"
+                               name="City"
+                               class="form-control"
+                               maxlength="100"
+                               placeholder="Enter city"
+                               value="@editUser?.City" />
+                    </div>
+
+                    <div class="col-md-8">
+                        <label for="Address" class="form-label">
+                            Address
+                        </label>
+                        <input id="Address"
+                               name="Address"
+                               class="form-control"
+                               maxlength="500"
+                               placeholder="Enter complete address"
+                               value="@editUser?.Address" />
+                    </div>
+
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 mt-4">
+                    <button type="submit" class="btn btn-pd">
+                        @(isEdit ? "Update User" : "Save User")
+                    </button>
+
+                    @if (isEdit)
+                    {
+                        <a asp-action="Index" class="btn btn-light-pd">
+                            Cancel
+                        </a>
+                    }
+                    else
+                    {
+                        <button type="reset" class="btn btn-light-pd">
+                            Clear Form
+                        </button>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- User list -->
+    <div class="list-header">
+        <div>
+            <h4>User List</h4>
+            <small class="text-muted">
+                View and manage registered users.
+            </small>
+        </div>
+
+        <div class="search-box">
+            <input type="search"
+                   id="userSearch"
+                   class="form-control"
+                   placeholder="Search users..."
+                   aria-label="Search users" />
+        </div>
+    </div>
+
+    <div class="table-shell">
+        <div class="table-responsive">
+            <table class="table user-table" id="userTable">
+                <thead>
+                    <tr>
+                        <th>User Code</th>
+                        <th>User Name</th>
+                        <th>Mobile</th>
+                        <th>City</th>
+                        <th>Address</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (Model != null && Model.Count > 0)
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="user-code">
+                                        @item.UserCode
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="user-name">
+                                        @item.UserName
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="user-mobile">
+                                        @item.Mobile
+                                    </span>
+                                </td>
+
+                                <td>@item.City</td>
+
+                                <td>@item.Address</td>
+
+                                <td>
+                                    <div class="action-buttons">
+                                        <a asp-action="Index"
+                                           asp-route-editId="@item.Id"
+                                           class="btn btn-edit">
+                                            Edit
+                                        </a>
+
+                                        <form asp-action="Delete"
+                                              method="post"
+                                              class="d-inline"
+                                              onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@item.Id" />
+
+                                            <button type="submit"
+                                                    class="btn btn-delete">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="empty-state">
+                                <strong>No users found</strong>
+                                Add your first user using the form above.
+                            </td>
+                        </tr>
+                    }
+
+                    <tr id="noSearchResults" style="display:none;">
+                        <td colspan="6" class="empty-state">
+                            <strong>No matching users</strong>
+                            Try another name, code, mobile number or city.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const searchInput = document.getElementById("userSearch");
+            const table = document.getElementById("userTable");
+            const rows = table.querySelectorAll(
+                "tbody tr:not(#noSearchResults)"
+            );
+            const noResults = document.getElementById("noSearchResults");
+
+            searchInput.addEventListener("input", function () {
+                const searchText = this.value.trim().toLowerCase();
+                let visibleCount = 0;
+
+                rows.forEach(function (row) {
+                    const matches = row.innerText
+                        .toLowerCase()
+                        .includes(searchText);
+
+                    row.style.display = matches ? "" : "none";
+
+                    if (matches) {
+                        visibleCount++;
+                    }
+                });
+
+                noResults.style.display =
+                    searchText !== "" && visibleCount === 0 ? "" : "none";
+            });
+        });
+    </script>
+}

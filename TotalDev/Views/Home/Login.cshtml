@@ -1,0 +1,154 @@
+
+@{
+    ViewData["Title"] = "Login";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        body {
+            background: #f4f7f4;
+        }
+
+        .login-wrapper {
+            min-height: 80vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 15px;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            background: #ffffff;
+            padding: 35px;
+            border-radius: 12px;
+            border: 1px solid #e2e8e3;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+        }
+
+        .pd-icon {
+            width: 65px;
+            height: 65px;
+            margin: 0 auto 15px;
+            border-radius: 12px;
+            background: #28744a;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Georgia, serif;
+            font-size: 29px;
+            font-weight: bold;
+        }
+
+        .login-title {
+            text-align: center;
+            color: #28744a;
+            font-size: 25px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .login-subtitle {
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 28px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 7px;
+        }
+
+        .form-control {
+            min-height: 45px;
+            border-radius: 7px;
+        }
+
+            .form-control:focus {
+                border-color: #28744a;
+                box-shadow: 0 0 0 3px rgba(40, 116, 74, 0.12);
+            }
+
+        .login-btn {
+            width: 100%;
+            min-height: 45px;
+            margin-top: 12px;
+            background: #28744a;
+            border: none;
+            border-radius: 7px;
+            color: white;
+            font-weight: 600;
+        }
+
+            .login-btn:hover {
+                background: #205c3b;
+                color: white;
+            }
+
+        .login-footer {
+            text-align: center;
+            color: #9ca3af;
+            font-size: 12px;
+            margin-top: 22px;
+        }
+    </style>
+}
+
+<div class="login-wrapper">
+    <div class="login-card">
+
+        <div class="pd-icon">PD</div>
+
+        <h1 class="login-title">Patel Daily</h1>
+        <p class="login-subtitle">Sign in to your account</p>
+
+        <form asp-controller="Home" asp-action="Login" method="post">
+
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label for="name" class="form-label">Username</label>
+                <input type="text"
+                       id="name"
+                       name="name"
+                       class="form-control"
+                       placeholder="Enter your username"
+                       autocomplete="username"
+                       required />
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password"
+                       id="password"
+                       name="password"
+                       class="form-control"
+                       placeholder="Enter your password"
+                       autocomplete="current-password"
+                       required />
+            </div>
+
+            <button type="submit" class="btn login-btn">
+                Login
+            </button>
+
+        </form>
+
+        <div class="login-footer">
+            &copy; @DateTime.Now.Year Patel Daily
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,60 +1,372 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Http
+
+@{
+    var userId = Context.Session.GetString("UserId");
+    var isLoggedIn = !string.IsNullOrWhiteSpace(userId);
+
+    var controllerName = ViewContext.RouteData.Values["controller"]?.ToString();
+    var actionName = ViewContext.RouteData.Values["action"]?.ToString();
+
+    var isLoginPage = controllerName == "Account"
+                      && actionName == "Login";
+
+    ViewData["Title"] ??= "Home";
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - TotalDev</title>
-    <script type="importmap"></script>
+
+    <title>@ViewData["Title"] - Patel Daily</title>
+
+    <meta name="theme-color" content="#28744a" />
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TotalDev.styles.css" asp-append-version="true" />
+    <link rel="icon" type="image/svg+xml" href="~/favicon.svg" asp-append-version="true" />
+
+    @await RenderSectionAsync("Styles", required: false)
+
+    <style>
+            :root {
+                --pd-green: #28744a;
+                --pd-dark-green: #1d5637;
+                --pd-light-green: #edf6ef;
+                --pd-border: #d9e3dc;
+                --pd-text: #303b33;
+            }
+
+            body {
+                margin: 0;
+                background: #f7f9f7;
+                color: var(--pd-text);
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 15px;
+            }
+
+            /* Header */
+            .pd-header {
+                background: white;
+                border-bottom: 3px solid var(--pd-green);
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+            }
+
+            .pd-navbar {
+                min-height: 72px;
+            }
+
+            .pd-brand {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                color: var(--pd-green) !important;
+                font-size: 24px;
+                font-weight: 700;
+                text-decoration: none;
+            }
+
+            .pd-brand-icon {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 44px;
+                height: 44px;
+                background: #28744a;
+                color: white;
+                border-radius: 5px;
+                font-family: Georgia, serif;
+                font-size: 22px;
+                font-weight: bold;
+            }
+
+            .pd-brand small {
+                display: block;
+                color: #657267;
+                font-size: 11px;
+                font-weight: 400;
+                letter-spacing: 0.4px;
+            }
+
+            .pd-nav-link {
+                display: block;
+                padding: 10px 15px !important;
+                margin: 0 3px;
+                border-radius: 4px;
+                color: #303b33 !important;
+                font-weight: 600;
+                text-decoration: none;
+            }
+
+                .pd-nav-link:hover,
+                .pd-nav-link.active {
+                    color: var(--pd-dark-green) !important;
+                    background: var(--pd-light-green);
+                }
+
+            .pd-user-info {
+                color: #5b685e;
+                font-size: 13px;
+                margin-right: 12px;
+            }
+
+            .pd-logout {
+                padding: 8px 15px;
+                border: 1px solid var(--pd-green);
+                border-radius: 4px;
+                color: var(--pd-green);
+                background: white;
+                text-decoration: none;
+                font-weight: 600;
+            }
+
+                .pd-logout:hover {
+                    background: var(--pd-green);
+                    color: white;
+                }
+
+            /* Main page */
+            .pd-main {
+                min-height: calc(100vh - 150px);
+                padding: 28px 0;
+            }
+
+            .pd-page-container {
+                width: 100%;
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 0 20px;
+            }
+
+            .pd-page-heading {
+                margin-bottom: 22px;
+            }
+
+                .pd-page-heading h1 {
+                    margin-bottom: 6px;
+                    color: var(--pd-dark-green);
+                    font-size: 27px;
+                    font-weight: 700;
+                }
+
+                .pd-page-heading p {
+                    margin: 0;
+                    color: #68736b;
+                }
+
+            /* Simple dashboard cards */
+            .pd-card {
+                height: 100%;
+                padding: 22px;
+                background: white;
+                border: 1px solid var(--pd-border);
+                border-radius: 6px;
+            }
+
+                .pd-card h5 {
+                    margin-bottom: 10px;
+                    color: var(--pd-dark-green);
+                    font-weight: 700;
+                }
+
+                .pd-card p {
+                    margin-bottom: 16px;
+                    color: #667168;
+                }
+
+            .pd-btn {
+                display: inline-block;
+                padding: 9px 16px;
+                border: 1px solid var(--pd-green);
+                border-radius: 4px;
+                background: var(--pd-green);
+                color: white;
+                text-decoration: none;
+                font-weight: 600;
+            }
+
+                .pd-btn:hover {
+                    background: var(--pd-dark-green);
+                    color: white;
+                }
+
+            /* Footer */
+            .pd-footer {
+                padding: 18px 0;
+                background: white;
+                border-top: 1px solid var(--pd-border);
+                color: #69736b;
+                font-size: 13px;
+            }
+
+                .pd-footer strong {
+                    color: var(--pd-green);
+                }
+
+            /* Login page should use its own full-width design */
+            body.pd-login-body {
+                background: white;
+            }
+
+                body.pd-login-body .pd-main {
+                    min-height: 100vh;
+                    padding: 0;
+                }
+
+            /* Mobile menu */
+            @@media (max-width: 767.98px) {
+                .pd-navbar {
+                    padding-top: 12px;
+                    padding-bottom: 12px;
+                }
+
+                .pd-brand {
+                    font-size: 21px;
+                }
+
+                .pd-nav-link {
+                    margin: 3px 0;
+                    padding: 11px 12px !important;
+                }
+
+                .pd-user-info {
+                    display: block;
+                    margin: 10px 0;
+                }
+
+                .pd-logout {
+                    display: inline-block;
+                    margin-top: 5px;
+                }
+
+                .pd-main {
+                    padding: 20px 0;
+                }
+
+                .pd-page-container {
+                    padding: 0 14px;
+                }
+
+                .pd-page-heading h1 {
+                    font-size: 23px;
+                }
+            }
+    </style>
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">TotalDev</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link text-dark"
-                               asp-area=""
-                               asp-controller="Products"
-                               asp-action="Index">Item</a>
-                        </li>
+<body class="@(isLoginPage ? "pd-login-body" : "")">
 
+    @if (!isLoginPage && isLoggedIn)
+    {
+        <header class="pd-header">
+            <nav class="navbar navbar-expand-md navbar-light pd-navbar">
+                <div class="container">
 
+                    <a class="pd-brand" asp-controller="Home" asp-action="Index">
 
-                    </ul>
+                        <span class="pd-brand-icon">PD</span>
+                        <span>
+                            Patel Daily
+                            <small>Fresh Dairy Products</small>
+                        </span>
+                    </a>
+
+                    <button class="navbar-toggler"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#pdMainMenu"
+                            aria-controls="pdMainMenu"
+                            aria-expanded="false"
+                            aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div class="collapse navbar-collapse" id="pdMainMenu">
+                        <ul class="navbar-nav ms-auto align-items-md-center">
+
+                            <li class="nav-item">
+                                <a class="nav-link pd-nav-link @(controllerName == "Home" ? "active" : "")"
+                                   asp-controller="Home"
+                                   asp-action="Index">
+                                    Home
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link pd-nav-link @(controllerName == "Products" ? "active" : "")"
+                                   asp-controller="Products"
+                                   asp-action="Index">
+                                    Item
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link pd-nav-link @(controllerName == "User" ? "active" : "")"
+                                   asp-controller="User"
+                                   asp-action="Index">
+                                    User
+                                </a>
+                            </li>
+
+                            <li class="nav-item">
+                                <span class="pd-user-info">
+                                    Welcome to Patel Daily
+                                </span>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="pd-logout"
+                                   asp-controller="Home"
+                                   asp-action="Logout">
+                                    Logout
+                                </a>
+                            </li>
+
+                        </ul>
+                    </div>
                 </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+            </nav>
+        </header>
+    }
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - TotalDev - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
+    <main role="main" class="pd-main">
+        @if (isLoginPage)
+        {
+            @RenderBody()
+        }
+        else
+        {
+            <div class="pd-page-container">
+                @RenderBody()
+            </div>
+        }
+    </main>
+
+    @if (!isLoginPage && isLoggedIn)
+    {
+        <footer class="pd-footer">
+            <div class="container d-flex flex-column flex-sm-row
+                justify-content-between align-items-sm-center gap-2">
+                <span>
+                    © @DateTime.Now.Year <strong>Patel Daily</strong>
+                    — Fresh Dairy Products
+                </span>
+
+                <a asp-controller="Home"
+                   asp-action="Privacy"
+                   class="text-decoration-none">
+                    Privacy
+                </a>
+            </div>
+        </footer>
+    }
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -35,4 +35,10 @@ public class User
 
     // 1 = active, 0 = inactive
     public int IsActive { get; set; } = 1;
+
+    [BsonElement("password")]
+    [Required(ErrorMessage = "Password is required")]
+    [StringLength(100)]
+    // Stored as string but must contain only numeric characters; controller enforces this rule on save
+    public string Password { get; set; } = string.Empty;
 }
