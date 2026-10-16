@@ -18,9 +18,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <title>@ViewData["Title"] - Patel Daily</title>
-
+    <title>@ViewData["Title"] - Patel Dairy</title>
     <meta name="theme-color" content="#28744a" />
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
@@ -37,6 +35,7 @@
                 --pd-light-green: #edf6ef;
                 --pd-border: #d9e3dc;
                 --pd-text: #303b33;
+                --pd-sidebar-width: 250px;
             }
 
             body {
@@ -47,97 +46,195 @@
                 font-size: 15px;
             }
 
-            /* Header */
-            .pd-header {
-                background: white;
-                border-bottom: 3px solid var(--pd-green);
-                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
-            }
-
-            .pd-navbar {
-                min-height: 72px;
+            /* Left vertical sidebar */
+            .pd-sidebar {
+                position: fixed;
+                inset: 0 auto 0 0;
+                z-index: 1040;
+                display: flex;
+                flex-direction: column;
+                width: var(--pd-sidebar-width);
+                padding: 22px 15px 16px;
+                color: #fff;
+                background: linear-gradient(180deg, #28744a 0%, #1d5637 100%);
+                box-shadow: 3px 0 18px rgba(24, 62, 39, .12);
+                overflow-y: auto;
+                transition: transform .25s ease;
             }
 
             .pd-brand {
                 display: flex;
                 align-items: center;
-                gap: 10px;
-                color: var(--pd-green) !important;
-                font-size: 24px;
-                font-weight: 700;
+                gap: 11px;
+                padding: 0 9px 24px;
+                margin-bottom: 20px;
+                color: #fff !important;
                 text-decoration: none;
+                border-bottom: 1px solid rgba(255,255,255,.2);
             }
 
             .pd-brand-icon {
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                width: 44px;
-                height: 44px;
-                background: #28744a;
-                color: white;
-                border-radius: 5px;
+                flex: 0 0 46px;
+                width: 46px;
+                height: 46px;
+                color: var(--pd-green);
+                background: #fff;
+                border-radius: 12px;
                 font-family: Georgia, serif;
-                font-size: 22px;
-                font-weight: bold;
+                font-size: 21px;
+                font-weight: 800;
+                box-shadow: 0 4px 10px rgba(0,0,0,.12);
+            }
+
+            .pd-brand-name {
+                display: block;
+                font-size: 20px;
+                line-height: 1.2;
+                font-weight: 700;
             }
 
             .pd-brand small {
                 display: block;
-                color: #657267;
+                margin-top: 4px;
+                color: rgba(255,255,255,.75);
                 font-size: 11px;
                 font-weight: 400;
-                letter-spacing: 0.4px;
+                letter-spacing: .35px;
+            }
+
+            .pd-menu-label {
+                padding: 0 13px 10px;
+                color: rgba(255,255,255,.62);
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+            }
+
+            .pd-nav {
+                display: flex;
+                flex-direction: column;
+                gap: 7px;
             }
 
             .pd-nav-link {
-                display: block;
-                padding: 10px 15px !important;
-                margin: 0 3px;
-                border-radius: 4px;
-                color: #303b33 !important;
-                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 13px;
+                width: 100%;
+                padding: 13px 14px;
+                color: rgba(255,255,255,.88) !important;
                 text-decoration: none;
+                font-size: 14px;
+                font-weight: 600;
+                border: 1px solid transparent;
+                border-radius: 10px;
+                transition: background .2s ease, color .2s ease, transform .2s ease;
             }
 
-                .pd-nav-link:hover,
-                .pd-nav-link.active {
-                    color: var(--pd-dark-green) !important;
-                    background: var(--pd-light-green);
+                .pd-nav-link:hover {
+                    color: #fff !important;
+                    background: rgba(255,255,255,.12);
+                    transform: translateX(2px);
                 }
 
-            .pd-user-info {
-                color: #5b685e;
-                font-size: 13px;
-                margin-right: 12px;
+                .pd-nav-link.active {
+                    color: var(--pd-dark-green) !important;
+                    background: #fff;
+                    border-color: rgba(255,255,255,.55);
+                    box-shadow: 0 5px 13px rgba(0,0,0,.1);
+                }
+
+            .pd-nav-icon {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 22px;
+                font-size: 18px;
+                line-height: 1;
             }
 
+            .pd-sidebar-bottom {
+                margin-top: auto;
+                padding-top: 20px;
+            }
+
+            .pd-welcome {
+                display: flex;
+                align-items: center;
+                gap: 11px;
+                padding: 13px 10px;
+                margin-bottom: 12px;
+                background: rgba(255,255,255,.1);
+                border: 1px solid rgba(255,255,255,.12);
+                border-radius: 10px;
+            }
+
+            .pd-welcome-avatar {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex: 0 0 36px;
+                width: 36px;
+                height: 36px;
+                color: var(--pd-dark-green);
+                background: #fff;
+                border-radius: 50%;
+                font-size: 15px;
+                font-weight: 800;
+            }
+
+            .pd-welcome-text {
+                min-width: 0;
+                color: #fff;
+                font-size: 12px;
+                font-weight: 600;
+                overflow-wrap: anywhere;
+            }
+
+                .pd-welcome-text small {
+                    display: block;
+                    margin-top: 3px;
+                    color: rgba(255,255,255,.68);
+                    font-size: 11px;
+                    font-weight: 400;
+                }
+
             .pd-logout {
-                padding: 8px 15px;
-                border: 1px solid var(--pd-green);
-                border-radius: 4px;
-                color: var(--pd-green);
-                background: white;
+                display: flex;
+                align-items: center;
+                gap: 13px;
+                width: 100%;
+                padding: 12px 14px;
+                color: #fff !important;
+                background: rgba(255,255,255,.08);
+                border: 1px solid rgba(255,255,255,.22);
+                border-radius: 10px;
                 text-decoration: none;
                 font-weight: 600;
+                transition: background .2s ease;
             }
 
                 .pd-logout:hover {
-                    background: var(--pd-green);
-                    color: white;
+                    color: var(--pd-dark-green) !important;
+                    background: #fff;
                 }
 
-            /* Main page */
+            /* Page area next to sidebar */
             .pd-main {
-                min-height: calc(100vh - 150px);
+                min-height: calc(100vh - 64px);
+                margin-left: var(--pd-sidebar-width);
                 padding: 28px 0;
             }
 
             .pd-page-container {
                 width: 100%;
-                max-width: 1200px;
+                max-width: 1500px;
                 margin: 0 auto;
-                padding: 0 20px;
+                padding: 0 26px;
             }
 
             .pd-page-heading {
@@ -156,13 +253,13 @@
                     color: #68736b;
                 }
 
-            /* Simple dashboard cards */
             .pd-card {
                 height: 100%;
                 padding: 22px;
-                background: white;
+                background: #fff;
                 border: 1px solid var(--pd-border);
-                border-radius: 6px;
+                border-radius: 10px;
+                box-shadow: 0 3px 12px rgba(30, 70, 42, .035);
             }
 
                 .pd-card h5 {
@@ -179,23 +276,23 @@
             .pd-btn {
                 display: inline-block;
                 padding: 9px 16px;
-                border: 1px solid var(--pd-green);
-                border-radius: 4px;
+                color: #fff;
                 background: var(--pd-green);
-                color: white;
+                border: 1px solid var(--pd-green);
+                border-radius: 6px;
                 text-decoration: none;
                 font-weight: 600;
             }
 
                 .pd-btn:hover {
+                    color: #fff;
                     background: var(--pd-dark-green);
-                    color: white;
                 }
 
-            /* Footer */
             .pd-footer {
-                padding: 18px 0;
-                background: white;
+                margin-left: var(--pd-sidebar-width);
+                padding: 17px 0;
+                background: #fff;
                 border-top: 1px solid var(--pd-border);
                 color: #69736b;
                 font-size: 13px;
@@ -205,43 +302,88 @@
                     color: var(--pd-green);
                 }
 
-            /* Login page should use its own full-width design */
+            .pd-mobile-topbar,
+            .pd-sidebar-overlay {
+                display: none;
+            }
+
+            /* Keep the login screen independent of the sidebar layout */
             body.pd-login-body {
-                background: white;
+                background: #fff;
             }
 
                 body.pd-login-body .pd-main {
                     min-height: 100vh;
+                    margin-left: 0;
                     padding: 0;
                 }
 
-            /* Mobile menu */
+                body.pd-login-body .pd-page-container {
+                    max-width: none;
+                    padding: 0;
+                }
+
             @@media (max-width: 767.98px) {
-                .pd-navbar {
-                    padding-top: 12px;
-                    padding-bottom: 12px;
+                .pd-sidebar {
+                    width: min(280px, 85vw);
+                    transform: translateX(-105%);
                 }
 
-                .pd-brand {
-                    font-size: 21px;
+                body.pd-sidebar-open .pd-sidebar {
+                    transform: translateX(0);
                 }
 
-                .pd-nav-link {
-                    margin: 3px 0;
-                    padding: 11px 12px !important;
+                .pd-mobile-topbar {
+                    position: sticky;
+                    top: 0;
+                    z-index: 1030;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    min-height: 62px;
+                    padding: 10px 15px;
+                    background: #fff;
+                    border-bottom: 2px solid var(--pd-green);
+                    box-shadow: 0 2px 8px rgba(0,0,0,.05);
                 }
 
-                .pd-user-info {
+                .pd-mobile-toggle {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 40px;
+                    height: 40px;
+                    color: #fff;
+                    background: var(--pd-green);
+                    border: 0;
+                    border-radius: 8px;
+                    font-size: 23px;
+                }
+
+                .pd-mobile-title {
+                    color: var(--pd-dark-green);
+                    font-size: 18px;
+                    font-weight: 700;
+                }
+
+                    .pd-mobile-title small {
+                        display: block;
+                        color: #68736b;
+                        font-size: 10px;
+                        font-weight: 400;
+                    }
+
+                body.pd-sidebar-open .pd-sidebar-overlay {
+                    position: fixed;
+                    inset: 0;
+                    z-index: 1035;
                     display: block;
-                    margin: 10px 0;
-                }
-
-                .pd-logout {
-                    display: inline-block;
-                    margin-top: 5px;
+                    background: rgba(15, 30, 20, .45);
                 }
 
                 .pd-main {
+                    min-height: calc(100vh - 110px);
+                    margin-left: 0;
                     padding: 20px 0;
                 }
 
@@ -252,6 +394,11 @@
                 .pd-page-heading h1 {
                     font-size: 23px;
                 }
+
+                .pd-footer {
+                    margin-left: 0;
+                    padding: 15px;
+                }
             }
     </style>
 </head>
@@ -260,75 +407,66 @@
 
     @if (!isLoginPage && isLoggedIn)
     {
-        <header class="pd-header">
-            <nav class="navbar navbar-expand-md navbar-light pd-navbar">
-                <div class="container">
+        <div class="pd-sidebar-overlay" id="pdSidebarOverlay"></div>
 
-                    <a class="pd-brand" asp-controller="Home" asp-action="Index">
+        <aside class="pd-sidebar" id="pdSidebar" aria-label="Main navigation">
+            <a class="pd-brand" asp-controller="Home" asp-action="Index">
+                <span class="pd-brand-icon">PD</span>
+                <span>
+                    <span class="pd-brand-name">Patel Dairy</span>
+                    <small>Fresh Dairy Products</small>
+                </span>
+            </a>
 
-                        <span class="pd-brand-icon">PD</span>
-                        <span>
-                            Patel Daily
-                            <small>Fresh Dairy Products</small>
-                        </span>
-                    </a>
+            <div class="pd-menu-label">Main Menu</div>
 
-                    <button class="navbar-toggler"
-                            type="button"
-                            data-bs-toggle="collapse"
-                            data-bs-target="#pdMainMenu"
-                            aria-controls="pdMainMenu"
-                            aria-expanded="false"
-                            aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
+            <nav class="pd-nav">
+                <a class="pd-nav-link @(controllerName == "Home" && actionName == "Index" ? "active" : "")"
+                   asp-controller="Home" asp-action="Index">
+                    <span class="pd-nav-icon" aria-hidden="true">⌂</span>
+                    <span>Home</span>
+                </a>
 
-                    <div class="collapse navbar-collapse" id="pdMainMenu">
-                        <ul class="navbar-nav ms-auto align-items-md-center">
+                <a class="pd-nav-link @(controllerName == "Products" ? "active" : "")"
+                   asp-controller="Products" asp-action="Index">
+                    <span class="pd-nav-icon" aria-hidden="true">▤</span>
+                    <span>Item</span>
+                </a>
 
-                            <li class="nav-item">
-                                <a class="nav-link pd-nav-link @(controllerName == "Home" ? "active" : "")"
-                                   asp-controller="Home"
-                                   asp-action="Index">
-                                    Home
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link pd-nav-link @(controllerName == "Products" ? "active" : "")"
-                                   asp-controller="Products"
-                                   asp-action="Index">
-                                    Item
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link pd-nav-link @(controllerName == "User" ? "active" : "")"
-                                   asp-controller="User"
-                                   asp-action="Index">
-                                    User
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <span class="pd-user-info">
-                                    Welcome to Patel Daily
-                                </span>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="pd-logout"
-                                   asp-controller="Home"
-                                   asp-action="Logout">
-                                    Logout
-                                </a>
-                            </li>
-
-                        </ul>
-                    </div>
-                </div>
+                <a class="pd-nav-link @(controllerName == "User" ? "active" : "")"
+                   asp-controller="User" asp-action="Index">
+                    <span class="pd-nav-icon" aria-hidden="true">♙</span>
+                    <span>User</span>
+                </a>
             </nav>
-        </header>
+
+            <div class="pd-sidebar-bottom">
+                <div class="pd-welcome">
+                    <span class="pd-welcome-avatar">PD</span>
+                    <span class="pd-welcome-text">
+                        Welcome to Patel Dairy
+                        <small>Management Panel</small>
+                    </span>
+                </div>
+
+                <a class="pd-logout" asp-controller="Home" asp-action="Logout">
+                    <span class="pd-nav-icon" aria-hidden="true">↪</span>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <div class="pd-mobile-topbar">
+            <button class="pd-mobile-toggle" id="pdMobileToggle"
+                    type="button" aria-label="Open menu"
+                    aria-controls="pdSidebar" aria-expanded="false">
+                ☰
+            </button>
+            <div class="pd-mobile-title">
+                Patel Dairy
+                <small>Fresh Dairy Products</small>
+            </div>
+        </div>
     }
 
     <main role="main" class="pd-main">
@@ -347,16 +485,12 @@
     @if (!isLoginPage && isLoggedIn)
     {
         <footer class="pd-footer">
-            <div class="container d-flex flex-column flex-sm-row
-                justify-content-between align-items-sm-center gap-2">
+            <div class="container d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
                 <span>
-                    © @DateTime.Now.Year <strong>Patel Daily</strong>
+                    © @DateTime.Now.Year <strong>Patel Dairy</strong>
                     — Fresh Dairy Products
                 </span>
-
-                <a asp-controller="Home"
-                   asp-action="Privacy"
-                   class="text-decoration-none">
+                <a asp-controller="Home" asp-action="Privacy" class="text-decoration-none">
                     Privacy
                 </a>
             </div>
@@ -366,6 +500,46 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+            (() => {
+                const toggle = document.getElementById("pdMobileToggle");
+                const overlay = document.getElementById("pdSidebarOverlay");
+
+                function closeSidebar() {
+                    document.body.classList.remove("pd-sidebar-open");
+                    if (toggle) {
+                        toggle.setAttribute("aria-expanded", "false");
+                        toggle.setAttribute("aria-label", "Open menu");
+                    }
+                }
+
+                if (toggle) {
+                    toggle.addEventListener("click", () => {
+                        const isOpen = document.body.classList.toggle("pd-sidebar-open");
+                        toggle.setAttribute("aria-expanded", String(isOpen));
+                        toggle.setAttribute("aria-label", isOpen ? "Close menu" : "Open menu");
+                    });
+                }
+
+                if (overlay) {
+                    overlay.addEventListener("click", closeSidebar);
+                }
+
+                document.querySelectorAll(".pd-sidebar .pd-nav-link, .pd-sidebar .pd-logout")
+                    .forEach(link => link.addEventListener("click", () => {
+                        if (window.matchMedia("(max-width: 767.98px)").matches) {
+                            closeSidebar();
+                        }
+                    }));
+
+                window.addEventListener("resize", () => {
+                    if (window.matchMedia("(min-width: 768px)").matches) {
+                        closeSidebar();
+                    }
+                });
+            })();
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
