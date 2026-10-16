@@ -26,6 +26,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TotalDev.styles.css" asp-append-version="true" />
     <link rel="icon" type="image/svg+xml" href="~/favicon.svg" asp-append-version="true" />
+    <link rel="manifest" href="~/manifest.json" />
 
     @await RenderSectionAsync("Styles", required: false)
 
@@ -609,6 +610,16 @@
                     }
                 });
             })();
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(function (reg) { console.log('ServiceWorker registered', reg); })
+                    .catch(function (err) { console.warn('ServiceWorker registration failed:', err); });
+            });
+        }
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)
