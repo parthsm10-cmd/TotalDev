@@ -13,10 +13,7 @@
 <div class="container mt-4">
     <h2>User Management</h2>
 
-    @if (TempData["Success"] is string message)
-    {
-        <div class="alert alert-success">@message</div>
-    }
+    @* TempData messages are now shown via SweetAlert2 in the layout; removed inline alert *@
 
     <div asp-validation-summary="All" class="text-danger"></div>
 
@@ -111,7 +108,7 @@
                         <td>
                             <a asp-action="Index" asp-route-editId="@item.Id" class="btn btn-sm btn-warning">Edit</a>
 
-                            <form asp-action="Delete" method="post" class="d-inline" onsubmit="return confirm('Delete this user?');">
+                            <form asp-action="Delete" method="post" class="d-inline swal-confirm" data-message="Delete this user?">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="id" value="@item.Id" />
                                 <button type="submit" class="btn btn-sm btn-danger">Delete</button>

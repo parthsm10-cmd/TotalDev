@@ -49,7 +49,8 @@ namespace TotalDev.Controllers
             {
                 // set session user id to a special value
                 HttpContext.Session.SetString("UserId", "default-dev");
-                TempData["Success"] = "Login successful (default user).";
+                // also store a display name for layout
+                HttpContext.Session.SetString("UserName", "Dev");
                 return RedirectToAction(nameof(Index));
             }
 
@@ -63,7 +64,8 @@ namespace TotalDev.Controllers
                 {
                     // store user id in session
                     HttpContext.Session.SetString("UserId", user.Id ?? string.Empty);
-                    TempData["Success"] = "Login successful.";
+                    // store username for display in layout
+                    HttpContext.Session.SetString("UserName", user.UserName ?? string.Empty);
                     return RedirectToAction(nameof(Index));
                 }
                 else

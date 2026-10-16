@@ -3,6 +3,7 @@
 @{
     var userId = Context.Session.GetString("UserId");
     var isLoggedIn = !string.IsNullOrWhiteSpace(userId);
+    var userName = Context.Session.GetString("UserName");
 
     var controllerName = ViewContext.RouteData.Values["controller"]?.ToString();
     var actionName = ViewContext.RouteData.Values["action"]?.ToString();
@@ -19,7 +20,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Patel Dairy</title>
-    <meta name="theme-color" content="#28744a" />
+    <meta name="theme-color" content="#14532D" />
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -30,11 +31,20 @@
 
     <style>
             :root {
-                --pd-green: #28744a;
-                --pd-dark-green: #1d5637;
-                --pd-light-green: #edf6ef;
-                --pd-border: #d9e3dc;
-                --pd-text: #303b33;
+                /* Blue theme: primary, darker accent, and light tints */
+                --pd-green: #14532D; /* Primary brand - Forest Green */
+                --pd-dark-green: #166534; /* Primary button hover / darker accent - Deep Green */
+                --pd-secondary: #16A34A; /* Secondary fresh green */
+                --pd-primary-bg: #FFFFFF; /* Primary background - White */
+                --pd-page-bg: #F8FAF8; /* Page background - Soft Natural White */
+                --pd-light-green: #F0FDF4; /* Light green background - Mint Green */
+                --pd-border: #E5E7EB; /* Borders - Light Gray */
+                --pd-text: #1F2937; /* Primary text - Dark Charcoal */
+                --pd-secondary-text: #6B7280; /* Secondary text - Muted Gray */
+                --pd-sidebar-width: 250px;
+                --pd-success: #15803D; /* Success messages */
+                --pd-danger: #DC2626; /* Sale / discount labels */
+                --pd-sidebar-text: #f7fbff; /* off-white for sidebar text */
                 --pd-sidebar-width: 250px;
             }
 
@@ -56,7 +66,7 @@
                 width: var(--pd-sidebar-width);
                 padding: 22px 15px 16px;
                 color: #fff;
-                background: linear-gradient(180deg, #28744a 0%, #1d5637 100%);
+                background: linear-gradient(180deg, var(--pd-green) 0%, var(--pd-dark-green) 100%);
                 box-shadow: 3px 0 18px rgba(24, 62, 39, .12);
                 overflow-y: auto;
                 transition: transform .25s ease;
@@ -68,7 +78,7 @@
                 gap: 11px;
                 padding: 0 9px 24px;
                 margin-bottom: 20px;
-                color: #fff !important;
+                color: var(--pd-sidebar-text) !important;
                 text-decoration: none;
                 border-bottom: 1px solid rgba(255,255,255,.2);
             }
@@ -209,7 +219,7 @@
                 gap: 13px;
                 width: 100%;
                 padding: 12px 14px;
-                color: #fff !important;
+                color: var(--pd-sidebar-text) !important;
                 background: rgba(255,255,255,.08);
                 border: 1px solid rgba(255,255,255,.22);
                 border-radius: 10px;
@@ -276,7 +286,7 @@
             .pd-btn {
                 display: inline-block;
                 padding: 9px 16px;
-                color: #fff;
+                color: var(--pd-sidebar-text);
                 background: var(--pd-green);
                 border: 1px solid var(--pd-green);
                 border-radius: 6px;
@@ -285,7 +295,7 @@
             }
 
                 .pd-btn:hover {
-                    color: #fff;
+                color: var(--pd-sidebar-text);
                     background: var(--pd-dark-green);
                 }
 
@@ -353,7 +363,7 @@
                     justify-content: center;
                     width: 40px;
                     height: 40px;
-                    color: #fff;
+                    color: var(--pd-sidebar-text);
                     background: var(--pd-green);
                     border: 0;
                     border-radius: 8px;
@@ -444,8 +454,16 @@
                 <div class="pd-welcome">
                     <span class="pd-welcome-avatar">PD</span>
                     <span class="pd-welcome-text">
-                        Welcome to Patel Dairy
-                        <small>Management Panel</small>
+                        @if (!string.IsNullOrWhiteSpace(userName))
+                        {
+                            @userName
+                            <small>Management Panel</small>
+                        }
+                        else
+                        {
+                            <text>Welcome to Patel Dairy</text>
+                            <small>Management Panel</small>
+                        }
                     </span>
                 </div>
 
@@ -499,9 +517,61 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     <script>
+            // Show server-side TempData messages using SweetAlert2
+            (function () {
+                var success = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["Success"] ?? null));
+                var error = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["Error"] ?? null));
+                var warning = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["Warning"] ?? null));
+                var info = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["Info"] ?? null));
+
+                function showIf(val, icon, title) {
+                    if (val) {
+                        Swal.fire({
+                            icon: icon,
+                            title: title,
+                            text: val,
+                            // don't auto-close; require user to click OK
+                            showConfirmButton: true,
+                            confirmButtonText: 'OK',
+                            // keep default modal position so confirm button appears at bottom of dialog
+                            allowOutsideClick: true
+                        });
+                    }
+                }
+
+                document.addEventListener('DOMContentLoaded', function () {
+                    showIf(success, 'success', 'Success');
+                    showIf(error, 'error', 'Error');
+                    showIf(warning, 'warning', 'Warning');
+                    showIf(info, 'info', 'Info');
+
+                    // Attach SweetAlert confirmations to forms with class 'swal-confirm'
+                    document.querySelectorAll('form.swal-confirm').forEach(function (form) {
+                        form.addEventListener('submit', function (e) {
+                            e.preventDefault();
+                            var message = form.getAttribute('data-message') || 'Are you sure?';
+                            Swal.fire({
+                                title: 'Confirm',
+                                text: message,
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonText: 'OK',
+                                cancelButtonText: 'Cancel',
+                                allowOutsideClick: false
+                            }).then(function (result) {
+                                if (result.isConfirmed) {
+                                    form.submit();
+                                }
+                            });
+                        });
+                    });
+                });
+            })();
+
             (() => {
                 const toggle = document.getElementById("pdMobileToggle");
                 const overlay = document.getElementById("pdSidebarOverlay");
