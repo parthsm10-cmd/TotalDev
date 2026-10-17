@@ -37,6 +37,7 @@ builder.Services.AddSingleton<IMongoClient>(sp =>
 // 3. Register Services
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<CustomerService>();
 
 var app = builder.Build();
 

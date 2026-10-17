@@ -444,6 +444,13 @@
                     <span>Item</span>
                 </a>
 
+                <a class="pd-nav-link @(controllerName == "Customer" ? "active" : "")"
+                   asp-controller="Customer" asp-action="Index">
+                    <span class="pd-nav-icon" aria-hidden="true">♙</span>
+                    <span>Customer</span>
+                </a>
+
+
                 <a class="pd-nav-link @(controllerName == "User" ? "active" : "")"
                    asp-controller="User" asp-action="Index">
                     <span class="pd-nav-icon" aria-hidden="true">♙</span>
