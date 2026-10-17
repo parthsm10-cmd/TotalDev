@@ -104,5 +104,78 @@ namespace TotalDev.Controllers
                 return Problem("Customer delete failed.");
             }
         }
+
+        // GET: /Home/Login
+        [HttpGet]
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        // POST: /Home/Login
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(string name, string password)
+        {
+            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(password))
+            {
+                ModelState.AddModelError(string.Empty, "Name and password are required.");
+                return View();
+            }
+
+            // Default credential
+            if (string.Equals(name.Trim(), "Dev", StringComparison.OrdinalIgnoreCase) && password == "2026")
+            {
+                // set session user id to a special value
+                HttpContext.Session.SetString("UserId", "default-dev");
+                // also store a display name for layout
+                HttpContext.Session.SetString("UserName", "Dev");
+                HttpContext.Session.SetString("UserRole", "Admin"); // Optional: Set a role for the default user
+                return RedirectToAction(nameof(CustomerHome));
+            }
+
+            try
+            {
+                var users = await _service.GetAllAsync();
+                var user = users.FirstOrDefault(u => string.Equals(u.CustName, name.Trim(), StringComparison.OrdinalIgnoreCase)
+                                                    && u.Password == password);
+
+                if (user != null)
+                {
+                    // store user id in session
+                    HttpContext.Session.SetString("UserId", user.Id ?? string.Empty);
+                    // store username for display in layout
+                    HttpContext.Session.SetString("UserName", user.CustName ?? string.Empty);
+                    HttpContext.Session.SetString("UserRole", "Customer"); // Optional: Set a role for the user
+                    return RedirectToAction(nameof(CustomerHome));
+                }
+                else
+                {
+                    // No matching user found
+                    ModelState.AddModelError(string.Empty, "No user found with provided credentials.");
+                    return View();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Login check failed.");
+                return Problem("Login failed due to server error.");
+            }
+        }
+        [HttpGet]
+        public IActionResult CustomerHome()
+        {
+            var userId = HttpContext.Session.GetString("UserId");
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            if (string.IsNullOrWhiteSpace(userId) ||
+                !string.Equals(userRole, "Customer", StringComparison.OrdinalIgnoreCase))
+            {
+                return RedirectToAction(nameof(Login));
+            }
+
+            return View();
+        }
+
     }
 }

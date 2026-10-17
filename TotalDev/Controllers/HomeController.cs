@@ -7,18 +7,37 @@ namespace TotalDev.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly OrderService _orderService;
         private readonly UserService _userService;
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(UserService userService, ILogger<HomeController> logger)
+        public HomeController(UserService userService, OrderService orderService, ILogger<HomeController> logger)
         {
             _userService = userService;
+            _orderService = orderService;
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            // Show recent orders directly on admin home page
+            var role = HttpContext.Session.GetString("UserRole") ?? string.Empty;
+            if (string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                var orders = await _orderService.GetAllAsync();
+                return View(orders);
+            }
+
             return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Orders()
+        {
+            var orders = await _orderService.GetAllAsync();
+
+            // For display, we may want to resolve customer name; keep CustomerId for now
+            return View("OrdersList", orders);
         }
 
         public IActionResult Privacy()
@@ -51,6 +70,7 @@ namespace TotalDev.Controllers
                 HttpContext.Session.SetString("UserId", "default-dev");
                 // also store a display name for layout
                 HttpContext.Session.SetString("UserName", "Dev");
+                HttpContext.Session.SetString("UserRole", "Admin");
                 return RedirectToAction(nameof(Index));
             }
 
@@ -66,6 +86,7 @@ namespace TotalDev.Controllers
                     HttpContext.Session.SetString("UserId", user.Id ?? string.Empty);
                     // store username for display in layout
                     HttpContext.Session.SetString("UserName", user.UserName ?? string.Empty);
+                    HttpContext.Session.SetString("UserRole", "Admin");
                     return RedirectToAction(nameof(Index));
                 }
                 else

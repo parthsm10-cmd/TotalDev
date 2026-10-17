@@ -8,6 +8,11 @@
     var controllerName = ViewContext.RouteData.Values["controller"]?.ToString();
     var actionName = ViewContext.RouteData.Values["action"]?.ToString();
 
+    // Role stored in session at login (e.g. "Admin" or "Customer")
+    var userRole = Context.Session.GetString("UserRole") ?? string.Empty;
+    var isAdmin = string.Equals(userRole, "Admin", StringComparison.OrdinalIgnoreCase);
+    var isCustomer = string.Equals(userRole, "Customer", StringComparison.OrdinalIgnoreCase);
+
     var isLoginPage = controllerName == "Account"
                       && actionName == "Login";
 
@@ -432,30 +437,52 @@
             <div class="pd-menu-label">Main Menu</div>
 
             <nav class="pd-nav">
-                <a class="pd-nav-link @(controllerName == "Home" && actionName == "Index" ? "active" : "")"
-                   asp-controller="Home" asp-action="Index">
-                    <span class="pd-nav-icon" aria-hidden="true">⌂</span>
-                    <span>Home</span>
-                </a>
+                @if (isAdmin)
+                {
+                    <a class="pd-nav-link @(controllerName == "Home" && actionName == "Index" ? "active" : "")"
+                       asp-controller="Home" asp-action="Index">
+                        <span class="pd-nav-icon" aria-hidden="true">⌂</span>
+                        <span>Home</span>
+                    </a>
 
-                <a class="pd-nav-link @(controllerName == "Products" ? "active" : "")"
-                   asp-controller="Products" asp-action="Index">
-                    <span class="pd-nav-icon" aria-hidden="true">▤</span>
-                    <span>Item</span>
-                </a>
+                    <a class="pd-nav-link @(controllerName == "Products" ? "active" : "")"
+                       asp-controller="Products" asp-action="Index">
+                        <span class="pd-nav-icon" aria-hidden="true">▤</span>
+                        <span>Item</span>
+                    </a>
 
-                <a class="pd-nav-link @(controllerName == "Customer" ? "active" : "")"
-                   asp-controller="Customer" asp-action="Index">
-                    <span class="pd-nav-icon" aria-hidden="true">♙</span>
-                    <span>Customer</span>
-                </a>
+                    <a class="pd-nav-link @(controllerName == "Customer" ? "active" : "")"
+                       asp-controller="Customer" asp-action="Index">
+                        <span class="pd-nav-icon" aria-hidden="true">♙</span>
+                        <span>Customer</span>
+                    </a>
 
+                    <a class="pd-nav-link @(controllerName == "User" ? "active" : "")"
+                       asp-controller="Order" asp-action="Create">
+                        <span class="pd-nav-icon" aria-hidden="true">♙</span>
+                        <span>Order</span>
+                    </a>
 
-                <a class="pd-nav-link @(controllerName == "User" ? "active" : "")"
-                   asp-controller="User" asp-action="Index">
-                    <span class="pd-nav-icon" aria-hidden="true">♙</span>
-                    <span>User</span>
-                </a>
+                    <a class="pd-nav-link @(controllerName == "User" ? "active" : "")"
+                       asp-controller="User" asp-action="Index">
+                        <span class="pd-nav-icon" aria-hidden="true">♙</span>
+                        <span>User</span>
+                    </a>
+                }
+                else
+                {
+
+                    <a class="pd-nav-link @(controllerName == "User" ? "active" : "")"
+                       asp-controller="Customer" asp-action="CustomerHome">
+                        <span class="pd-nav-icon" aria-hidden="true">♙</span>
+                        <span>Home</span>
+                    </a>
+                    <a class="pd-nav-link @(controllerName == "User" ? "active" : "")"
+                       asp-controller="Order" asp-action="Create">
+                        <span class="pd-nav-icon" aria-hidden="true">♙</span>
+                        <span>Order</span>
+                    </a>
+                }
             </nav>
 
             <div class="pd-sidebar-bottom">

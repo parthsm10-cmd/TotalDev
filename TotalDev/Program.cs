@@ -38,6 +38,7 @@ builder.Services.AddSingleton<IMongoClient>(sp =>
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<CustomerService>();
+builder.Services.AddScoped<OrderService>();
 
 var app = builder.Build();
 
@@ -103,6 +104,22 @@ try
     {
         Console.WriteLine(
             $"INFO: Collection '{usersCollectionName}' already exists.");
+    }
+
+    // Ensure Orders collection exists
+    var ordersCollectionName =
+        configuration["MongoDbSettings:OrdersCollectionName"]
+        ?? "Orders";
+
+    if (!collectionNames.Contains(ordersCollectionName))
+    {
+        await database.CreateCollectionAsync(ordersCollectionName);
+
+        Console.WriteLine($"SUCCESS: Collection '{ordersCollectionName}' created!");
+    }
+    else
+    {
+        Console.WriteLine($"INFO: Collection '{ordersCollectionName}' already exists.");
     }
 }
 catch (Exception ex)

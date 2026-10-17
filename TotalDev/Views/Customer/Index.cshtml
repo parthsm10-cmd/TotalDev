@@ -91,11 +91,11 @@
                                     <td>
                                         <a asp-action="Index" asp-route-editId="@c.Id" class="btn btn-sm btn-outline-primary">Edit</a>
 
-                                        <form asp-action="Delete" method="post" class="d-inline">
+                                       @*  <form asp-action="Delete" method="post" class="d-inline">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="id" value="@c.Id" />
                                             <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                                        </form>
+                                        </form> *@
                                     </td>
                                 </tr>
                             }

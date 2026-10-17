@@ -31,4 +31,11 @@ public class Product
 
     [StringLength(500)]
     public string? Remarks { get; set; }
+
+    public int IsActive { get; set; }
+    public int createdBy { get; set; } 
+    public DateTime createdOn { get; set; } = DateTime.UtcNow;
+
+    public int modifyby { get; set; }
+    public DateTime modifyOn { get; set; } = DateTime.UtcNow;
 }

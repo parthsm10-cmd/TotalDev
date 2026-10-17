@@ -1,5 +1,4 @@
-﻿
-@model List<TotalDev.Models.Product>
+﻿@model List<TotalDev.Models.Product>
 @using TotalDev.Models
 @using System.Globalization
 
@@ -27,18 +26,18 @@
         margin-bottom: 25px;
     }
 
-    .page-heading h2 {
-        font-size: 27px;
-        font-weight: 750;
-        margin: 0 0 5px;
-        color: var(--pd-dark-green);
-    }
+        .page-heading h2 {
+            font-size: 27px;
+            font-weight: 750;
+            margin: 0 0 5px;
+            color: var(--pd-dark-green);
+        }
 
-    .page-heading p {
-        color: #778279;
-        margin: 0;
-        font-size: 14px;
-    }
+        .page-heading p {
+            color: #778279;
+            margin: 0;
+            font-size: 14px;
+        }
 
     .product-count {
         background: var(--pd-light-green);
@@ -64,12 +63,12 @@
         border-bottom: 1px solid #e3eae4;
     }
 
-    .product-card-header h4 {
-        color: var(--pd-dark-green);
-        font-size: 17px;
-        font-weight: 700;
-        margin: 0;
-    }
+        .product-card-header h4 {
+            color: var(--pd-dark-green);
+            font-size: 17px;
+            font-weight: 700;
+            margin: 0;
+        }
 
     .product-card-body {
         padding: 23px;
@@ -90,11 +89,11 @@
         font-size: 14px;
     }
 
-    .product-page .form-control:focus,
-    .product-page .form-select:focus {
-        border-color: var(--pd-dark-green);
-        box-shadow: 0 0 0 3px rgba(20, 83, 45, .10);
-    }
+        .product-page .form-control:focus,
+        .product-page .form-select:focus {
+            border-color: var(--pd-dark-green);
+            box-shadow: 0 0 0 3px rgba(20, 83, 45, .10);
+        }
 
     .btn-pd {
         background: var(--pd-green);
@@ -105,10 +104,10 @@
         font-weight: 650;
     }
 
-    .btn-pd:hover {
-        background: var(--pd-dark-green);
-        color: #fff;
-    }
+        .btn-pd:hover {
+            background: var(--pd-dark-green);
+            color: #fff;
+        }
 
     .btn-light-pd {
         background: #fff;
@@ -118,9 +117,9 @@
         padding: 10px 17px;
     }
 
-    .btn-light-pd:hover {
-        background: #f3f7f3;
-    }
+        .btn-light-pd:hover {
+            background: #f3f7f3;
+        }
 
     .list-header {
         display: flex;
@@ -131,22 +130,22 @@
         margin-bottom: 15px;
     }
 
-    .list-header h4 {
-        color: var(--pd-dark-green);
-        font-size: 19px;
-        font-weight: 750;
-        margin: 0;
-    }
+        .list-header h4 {
+            color: var(--pd-dark-green);
+            font-size: 19px;
+            font-weight: 750;
+            margin: 0;
+        }
 
     .search-box {
         max-width: 300px;
         width: 100%;
     }
 
-    .search-box input {
-        border-radius: 8px;
-        min-height: 41px;
-    }
+        .search-box input {
+            border-radius: 8px;
+            min-height: 41px;
+        }
 
     .table-shell {
         border: 1px solid var(--pd-border);
@@ -162,26 +161,26 @@
         vertical-align: middle;
     }
 
-    .product-table thead th {
-        background: #f3f7f3;
-        color: #526256;
-        font-weight: 700;
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: .35px;
-        white-space: nowrap;
-        padding: 15px 14px;
-        border-bottom: 1px solid #e0e8e1;
-    }
+        .product-table thead th {
+            background: #f3f7f3;
+            color: #526256;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .35px;
+            white-space: nowrap;
+            padding: 15px 14px;
+            border-bottom: 1px solid #e0e8e1;
+        }
 
-    .product-table tbody td {
-        padding: 14px;
-        border-color: #edf1ed;
-    }
+        .product-table tbody td {
+            padding: 14px;
+            border-color: #edf1ed;
+        }
 
-    .product-table tbody tr:hover {
-        background: #f8fbf8;
-    }
+        .product-table tbody tr:hover {
+            background: #f8fbf8;
+        }
 
     .item-code {
         color: var(--pd-green);
@@ -228,10 +227,10 @@
         color: #8b6414;
     }
 
-    .btn-edit:hover {
-        background: #fbe9be;
-        color: #6d4c0b;
-    }
+        .btn-edit:hover {
+            background: #fbe9be;
+            color: #6d4c0b;
+        }
 
     .btn-delete {
         background: #fff0ef;
@@ -239,10 +238,10 @@
         color: #b43c35;
     }
 
-    .btn-delete:hover {
-        background: #fbe0de;
-        color: #922c27;
-    }
+        .btn-delete:hover {
+            background: #fbe0de;
+            color: #922c27;
+        }
 
     .empty-state {
         text-align: center;
@@ -250,12 +249,12 @@
         color: #7b887e;
     }
 
-    .empty-state strong {
-        display: block;
-        color: #435548;
-        margin-bottom: 5px;
-        font-size: 15px;
-    }
+        .empty-state strong {
+            display: block;
+            color: #435548;
+            margin-bottom: 5px;
+            font-size: 15px;
+        }
 
     @@media (max-width: 576px) {
         .product-page {
@@ -400,6 +399,14 @@
                                placeholder="Optional notes"
                                value="@editProduct?.Remarks" />
                     </div>
+                    <div class="col-md-4 d-flex align-items-center">
+                        @* Ensure a value is always posted: hidden 0 then checkbox 1 when checked *@
+                        <input type="hidden" name="IsActive" value="0" />
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="IsActive" name="IsActive" value="1" @(editProduct?.IsActive == 1 ? "checked" : "") />
+                            <label class="form-check-label ms-2" for="IsActive">Active</label>
+                        </div>
+                    </div>
 
                 </div>
 
@@ -436,7 +443,7 @@
             <input type="search"
                    id="productSearch"
                    class="form-control"
-                   placeholder="Search products..." 
+                   placeholder="Search products..."
                    aria-label="Search products" />
         </div>
     </div>
@@ -492,7 +499,7 @@
                                             Edit
                                         </a>
 
-                                        <form asp-action="Delete"
+                                        @* <form asp-action="Delete"
                                               method="post"
                                               class="d-inline swal-confirm"
                                               data-message="Are you sure you want to delete this product?">
@@ -505,7 +512,7 @@
                                             <button type="submit" class="btn btn-delete">
                                                 Delete
                                             </button>
-                                        </form>
+                                        </form> *@
                                     </div>
                                 </td>
                             </tr>

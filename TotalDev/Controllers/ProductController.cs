@@ -58,6 +58,17 @@ public class ProductsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Save(Product product)
     {
+        // Normalize IsActive from checkbox (checkbox posts value when checked)
+        // Treat any truthy checkbox value as 1, otherwise 0
+        var form = HttpContext.Request.Form;
+        if (form != null && form.TryGetValue("IsActive", out var isActiveVal))
+        {
+            // StringValues may contain multiple entries (hidden + checkbox). Take the last value.
+            var s = isActiveVal.Count > 0 ? isActiveVal[isActiveVal.Count - 1] : isActiveVal.ToString();
+            s = s?.Trim().ToLowerInvariant();
+            product.IsActive = (s == "on" || s == "true" || s == "1") ? 1 : 0;
+        }
+
         if (!ModelState.IsValid)
         {
             ViewBag.FormProduct = product;
@@ -80,7 +91,6 @@ public class ProductsController : Controller
             }
             
             if (isNew)
-                
                 await _service.CreateAsync(product);
             else if (!await _service.UpdateAsync(product))
                 return NotFound();

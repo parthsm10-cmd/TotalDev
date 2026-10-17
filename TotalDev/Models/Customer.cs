@@ -28,12 +28,19 @@ namespace TotalDev.Models
         public string? Address { get; set; }
 
         // 1 = active, 0 = inactive
-        public int IsActive { get; set; } = 1;
 
         [BsonElement("password")]
         [Required(ErrorMessage = "Password is required")]
         [StringLength(100)]
         // Stored as string but must contain only numeric characters; controller enforces this rule on save
         public string Password { get; set; } = string.Empty;
+        public int IsActive { get; set; } 
+        public int createdBy { get; set; } 
+        public DateTime createdOn { get; set; } = DateTime.UtcNow;
+
+        public int modifyby { get; set; }
+        public DateTime modifyOn { get; set; } = DateTime.UtcNow;
+
+
     }
 }
