@@ -1,6 +1,7 @@
 
 using MongoDB.Bson;
 using MongoDB.Driver;
+using TotalDev.Models;
 using TotalDev.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,11 +35,31 @@ builder.Services.AddSingleton<IMongoClient>(sp =>
     return new MongoClient(connectionString);
 });
 
+builder.Services.AddSingleton<IMongoDatabase>(sp =>
+{
+    var configuration =
+        sp.GetRequiredService<IConfiguration>();
+
+    var databaseName =
+        configuration["MongoDbSettings:DatabaseName"];
+
+    if (string.IsNullOrWhiteSpace(databaseName))
+    {
+        throw new InvalidOperationException(
+            "MongoDB database name is missing in appsettings.json.");
+    }
+
+    return sp.GetRequiredService<IMongoClient>()
+        .GetDatabase(databaseName);
+});
+
 // 3. Register Services
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<CustomerService>();
-builder.Services.AddScoped<OrderService>();
+builder.Services.AddScoped<Order_HDRService>();
+
+
 
 var app = builder.Build();
 

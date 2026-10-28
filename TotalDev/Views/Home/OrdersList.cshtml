@@ -1,5 +1,5 @@
-@model List<TotalDev.Models.Order>
-@using TotalDev.Models
+
+@model List<TotalDev.Models.Order_HDR>
 
 @{
     ViewData["Title"] = "Orders";
@@ -15,38 +15,56 @@
         <table class="table product-table">
             <thead>
                 <tr>
+                    <th>Order No</th>
                     <th>Order Date</th>
                     <th>Customer</th>
-                    <th>Items</th>
                     <th>Total Qty</th>
                     <th>Total Amount</th>
+                    <th>Action</th>
                 </tr>
             </thead>
+
             <tbody>
                 @if (Model != null && Model.Count > 0)
                 {
-                    foreach (var o in Model)
+                    foreach (var order in Model)
                     {
                         <tr>
-                            <td>@o.Ord_Date.ToString("g")</td>
-                            <td>@(o.CustomerId ?? "-")</td>
+                            <td>@(order.Ord_No ?? "-")</td>
+
                             <td>
-                                <ul>
-                                    @foreach (var it in o.Items)
-                                    {
-                                        <li>@it.ItemCode - @it.Qty x ₹@it.MRP.ToString("0.00") = ₹@it.Amount.ToString("0.00")</li>
-                                    }
-                                </ul>
+                                @order.Ord_Date.ToString("dd/MM/yyyy")
                             </td>
-                            <td>@o.TotalQty</td>
-                            <td>₹@o.TotalAmount.ToString("0.00")</td>
+
+                            <td>
+                                @(order.CustomerId ?? "-")
+                            </td>
+
+                            <td>
+                                @order.TotalQty
+                            </td>
+
+                            <td>
+                                ₹@order.TotalAmount.ToString("0.00")
+                            </td>
+
+                            <td>
+                                <a asp-controller="Order_HDR"
+                                   asp-action="Details"
+                                   asp-route-id="@order.Ord_No"
+                                   class="btn btn-sm btn-primary">
+                                    View Details
+                                </a>
+                            </td>
                         </tr>
                     }
                 }
                 else
                 {
                     <tr>
-                        <td colspan="5">No orders found</td>
+                        <td colspan="6" class="text-center">
+                            No orders found.
+                        </td>
                     </tr>
                 }
             </tbody>

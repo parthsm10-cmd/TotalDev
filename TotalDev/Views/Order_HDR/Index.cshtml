@@ -1,4 +1,4 @@
-@model TotalDev.Models.OrderCreateModel
+﻿@model TotalDev.Models.Order_HDR
 @using TotalDev.Models
 
 @{
@@ -348,142 +348,143 @@
         }
     }
 
-        .order-header {
-            margin-bottom: 7px;
+    .order-header {
+        margin-bottom: 7px;
+    }
+
+        .order-header h4 {
+            font-size: 17px;
         }
 
-            .order-header h4 {
-                font-size: 17px;
-            }
-
-            .order-header small {
-                font-size: 10px;
-            }
-
-        .customer-row {
-            grid-template-columns: 1fr;
-            gap: 5px;
+        .order-header small {
+            font-size: 10px;
         }
 
-        .customer-panel {
-            padding: 8px;
-        }
+    .customer-row {
+        grid-template-columns: 1fr;
+        gap: 5px;
+    }
 
-        .products-toolbar {
-            align-items: center;
-            flex-direction: row;
-            gap: 6px;
-            padding: 8px;
-        }
+    .customer-panel {
+        padding: 8px;
+    }
 
-        .products-heading {
-            display: flex;
-            align-items: baseline;
-            justify-content: space-between;
-        }
+    .products-toolbar {
+        align-items: center;
+        flex-direction: row;
+        gap: 6px;
+        padding: 8px;
+    }
 
-            .products-heading small {
-                display: inline;
-            }
+    .products-heading {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+    }
 
-        .product-table {
-            min-width: 0;
-            width: 100%;
-        }
-
-            .product-table thead th {
-                padding: 7px 4px;
-                font-size: 10px;
-            }
-
-            .product-table td {
-                padding: 5px 4px;
-                height: auto;
-                min-height: 42px;
-                overflow-wrap: anywhere;
-            }
-
-            .product-table .col-item {
-                width: 44%;
-            }
-
-            .product-table .col-rate {
-                width: 21%;
-            }
-
-            .product-table .col-qty {
-                width: 15%;
-            }
-
-            .product-table .col-amount {
-                width: 20%;
-            }
-
-        .item-name {
-            font-size: 11px;
-        }
-
-        .qty-input {
-            min-width: 0;
-            width: 100%;
-            max-width: 60px;
-            font-size: 11px !important;
-            padding-left: 2px;
-            padding-right: 2px;
-        }
-
-        .item-rate {
-            white-space: normal;
-            overflow-wrap: anywhere;
-            font-size: 11px;
-        }
-
-        .item-unit {
+        .products-heading small {
             display: inline;
-            font-size: 9px;
         }
 
-        .item-amount {
-            font-size: 11px;
-            padding-right: 4px !important;
+    .product-table {
+        min-width: 0;
+        width: 100%;
+    }
+
+        .product-table thead th {
+            padding: 7px 4px;
+            font-size: 10px;
         }
 
-        .list-tools {
-            padding: 6px 8px;
+        .product-table td {
+            padding: 5px 4px;
+            height: auto;
+            min-height: 42px;
+            overflow-wrap: anywhere;
         }
 
-        .footer-summary {
-            gap: 10px;
+        .product-table .col-item {
+            width: 44%;
         }
 
-        .footer-stat small {
-            font-size: 9px;
+        .product-table .col-rate {
+            width: 21%;
         }
 
-        .footer-stat strong {
-            font-size: 11px;
+        .product-table .col-qty {
+            width: 15%;
         }
 
-        .footer-total strong {
-            font-size: 16px;
+        .product-table .col-amount {
+            width: 20%;
         }
 
-        .order-footer {
-            gap: 7px;
-            padding-left: 8px;
-            padding-right: 8px;
-        }
+    .item-name {
+        font-size: 11px;
+    }
 
-        .btn-reset {
-            padding: 0 8px;
-            min-height: 35px;
-        }
+    .qty-input {
+        min-width: 0;
+        width: 100%;
+        max-width: 60px;
+        font-size: 11px !important;
+        padding-left: 2px;
+        padding-right: 2px;
+    }
 
-        .btn-submit {
-            padding: 0 10px;
-            min-height: 35px;
-            font-size: 11px;
-        }
+    .item-rate {
+        white-space: normal;
+        overflow-wrap: anywhere;
+        font-size: 11px;
+    }
+
+    .item-unit {
+        display: inline;
+        font-size: 9px;
+    }
+
+    .item-amount {
+        font-size: 11px;
+        padding-right: 4px !important;
+    }
+
+    .list-tools {
+        padding: 6px 8px;
+    }
+
+    .footer-summary {
+        gap: 10px;
+    }
+
+    .footer-stat small {
+        font-size: 9px;
+    }
+
+    .footer-stat strong {
+        font-size: 11px;
+    }
+
+    .footer-total strong {
+        font-size: 16px;
+    }
+
+    .order-footer {
+        gap: 7px;
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .btn-reset {
+        padding: 0 8px;
+        min-height: 35px;
+    }
+
+    .btn-submit {
+        padding: 0 10px;
+        min-height: 35px;
+        font-size: 11px;
+    }
+
     }
 
     @@media (max-width: 380px) {
@@ -510,7 +511,7 @@
                 </div>
             </div>
 
-            <form asp-action="Create" method="post" id="orderForm">
+            <form asp-action="Index" method="post" id="orderForm">
                 @Html.AntiForgeryToken()
                 <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
 
