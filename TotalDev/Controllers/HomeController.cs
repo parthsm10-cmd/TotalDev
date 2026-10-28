@@ -7,11 +7,11 @@ namespace TotalDev.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly OrderService _orderService;
+        private readonly Order_HDRService _orderService;
         private readonly UserService _userService;
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(UserService userService, OrderService orderService, ILogger<HomeController> logger)
+        public HomeController(UserService userService, Order_HDRService orderService, ILogger<HomeController> logger)
         {
             _userService = userService;
             _orderService = orderService;
