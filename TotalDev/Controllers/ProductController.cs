@@ -21,14 +21,14 @@ public class ProductsController : Controller
 
     // List and form
     [HttpGet]
-    public async Task<IActionResult> Index(string? editId = null)
+    public async Task<IActionResult> Index(int editId)
     {
         try
         {
             var products = await _service.GetAllAsync();
             Product? editProduct = null;
 
-            if (!string.IsNullOrWhiteSpace(editId))
+            if (editId > 0)
             {
                 editProduct = await _service.GetByIdAsync(editId);
 
@@ -37,10 +37,10 @@ public class ProductsController : Controller
             }
 
             // If not editing, prefill ItemCode with next numeric code
-            if (string.IsNullOrWhiteSpace(editId) && editProduct == null)
+            if (editId > 0 &&editProduct == null)
             {
                 var nextCode = await _service.GetNextItemCodeAsync();
-                editProduct = new Product { ItemCode = nextCode };
+                editProduct = new Product { ItemCode = Convert.ToInt32(nextCode) };
             }
 
             ViewBag.EditProduct = editProduct;
@@ -80,7 +80,7 @@ public class ProductsController : Controller
             var isNew = string.IsNullOrWhiteSpace(product.Id);
 
             if (await _service.ItemCodeExistsAsync(
-                product.ItemCode.Trim(), product.Id))
+                Convert.ToInt32(product.ItemCode), product.Id))
             {
                 ModelState.AddModelError(
                     nameof(product.ItemCode),

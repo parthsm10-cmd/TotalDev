@@ -118,8 +118,7 @@ namespace TotalDev.Controllers
 
                     detailList.Add(new Order_Details
                     {
-                        Item_Id = product.Id.ToString(),
-                        Item_Code = product.ItemCode,
+                        Item_Id = Convert.ToInt32(product.ItemCode),
                         Unit = product.Unit,
                         Qty = item.Qty,
                         MRP = rate,

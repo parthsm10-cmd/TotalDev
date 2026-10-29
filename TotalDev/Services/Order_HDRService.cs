@@ -20,7 +20,12 @@ namespace TotalDev.Services
             List<Order_Details> details)
         {
             // Generate order ID before inserting the header.
-            header.Ord_No = MongoDB.Bson.ObjectId.GenerateNewId().ToString();
+            var MaxNumber = await _headers
+                .Find(Builders<Order_HDR>.Filter.Empty)
+                .SortByDescending(o => o.Ord_No)
+                .Limit(1)
+                .FirstOrDefaultAsync();
+            header.Ord_No = MaxNumber != null ? MaxNumber.Ord_No + 1 : 1;
 
             header.CreatedOn = DateTime.UtcNow;
             header.Modify_On = DateTime.UtcNow;
@@ -31,6 +36,13 @@ namespace TotalDev.Services
             // 2. Link every item to the new order number.
             foreach (var item in details)
             {
+                var MaxItemNumber = await _details
+                    .Find(Builders<Order_Details>.Filter.Empty)
+                    .SortByDescending(i => i.V_No)
+                    .Limit(1)
+                    .FirstOrDefaultAsync();
+                item.V_No = MaxItemNumber != null ? MaxItemNumber.V_No + 1 : 1;
+                item.V_Date = DateTime.UtcNow;
                 item.Ref_Ord_No = header.Ord_No;
                 item.Ref_Ord_Date = header.Ord_Date;
                 item.CustomerId = header.CustomerId;

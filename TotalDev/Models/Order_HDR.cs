@@ -1,17 +1,19 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TotalDev.Models
 {
     public class Order_HDR
     {
         [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string? Ord_No { get; set; }
+        public int? Ord_No { get; set; }
 
-        public DateTime Ord_Date { get; set; } 
+        public DateTime Ord_Date { get; set; }
 
+        [ForeignKey("Id")]
         public string? CustomerId { get; set; }
+        public Customer? Customer { get; set; }
 
         public decimal TotalQty { get; set; }
         public decimal TotalAmount { get; set; }
@@ -24,23 +26,32 @@ namespace TotalDev.Models
 
         public DateTime Modify_On { get; set; }
 
+        public List<Order_Details> Items { get; set; }
+            = new List<Order_Details>();
+
+        public List<Customer> Customers { get; set; }
+          = new List<Customer>();
+
     }
     public class Order_Details
     {
         [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string? Id { get; set; }
+        public int? V_No { get; set; }
 
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string? Ref_Ord_No { get; set; }
+        public DateTime V_Date { get; set; } = DateTime.UtcNow;
+
+        public int? Ref_Ord_No { get; set; }
 
         public DateTime Ref_Ord_Date { get; set; }
 
         public string? CustomerId { get; set; }
 
-        public string? Item_Id { get; set; }
+        [ForeignKey("Item_Id")]
+        public int? Item_Id { get; set; }
+        public Product? Product { get; set; }
 
-        public string? Item_Code { get; set; }
+
+        
 
         public string? Unit { get; set; }
 

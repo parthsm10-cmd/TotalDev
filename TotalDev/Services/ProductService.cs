@@ -39,19 +39,16 @@ public class ProductService
     }
 
     // READ: One product
-    public async Task<Product?> GetByIdAsync(string id)
+    public async Task<Product?> GetByIdAsync(int id)
     {
-        if (!ObjectId.TryParse(id, out _))
-            return null;
-
         return await _products
-            .Find(p => p.Id == id)
+            .Find(p => p.ItemCode == id)
             .FirstOrDefaultAsync();
     }
 
     // Check duplicate ItemCode
     public async Task<bool> ItemCodeExistsAsync(
-        string itemCode, string? excludeId = null)
+         int itemCode, string? excludeId = null)
     {
         var filter = Builders<Product>.Filter
             .Eq(p => p.ItemCode, itemCode);
@@ -71,7 +68,7 @@ public class ProductService
     public async Task CreateAsync(Product product)
     {
         product.Id = null;
-        product.ItemCode = product.ItemCode.Trim();
+        product.ItemCode = product.ItemCode;
 
         await _products.InsertOneAsync(product);
     }
@@ -83,7 +80,7 @@ public class ProductService
             !ObjectId.TryParse(product.Id, out _))
             return false;
 
-        product.ItemCode = product.ItemCode.Trim();
+        product.ItemCode = Convert.ToInt32(product.ItemCode);
 
         var result = await _products.ReplaceOneAsync(
             p => p.Id == product.Id,
@@ -115,7 +112,7 @@ public class ProductService
 
         var max = codes
             .Select(c => {
-                if (int.TryParse(c, out var v)) return v;
+                if (int.TryParse(c.ToString(), out var v)) return v;
                 return 0;
             })
             .DefaultIfEmpty(0)
