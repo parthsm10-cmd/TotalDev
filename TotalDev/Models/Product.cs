@@ -9,11 +9,11 @@ public class Product
 {
     [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
-    public string? Id { get; set; }
+    public string? Id { get; set; } = "0";
 
     [Required(ErrorMessage = "Item code is required")]
     [StringLength(30)]
-    public string ItemCode { get; set; } = string.Empty;
+    public int ItemCode { get; set; } = 0;
 
     [Required(ErrorMessage = "Item name is required")]
     [StringLength(100)]
@@ -30,7 +30,7 @@ public class Product
     public decimal MRP { get; set; }
 
     [StringLength(500)]
-    public string? Remarks { get; set; }
+    public string? Remarks { get; set; } = "";
 
     public int IsActive { get; set; }
     public int createdBy { get; set; } 

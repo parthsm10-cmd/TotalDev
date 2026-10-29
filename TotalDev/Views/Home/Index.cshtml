@@ -9,7 +9,7 @@
     <small class="text-muted">Recent customer orders are shown below.</small>
 </div>
 
-@* @if (Model != null && Model.Count > 0)
+ @if (Model != null && Model.Count > 0)
 {
     <div class="table-shell mt-3">
         <div class="table-responsive">
@@ -28,15 +28,7 @@
                     {
                         <tr>
                             <td>@o.Ord_Date.ToString("g")</td>
-                            <td>@(o.CustomerId ?? "-")</td>
-                            <td>
-                                <ul>
-                                    @foreach (var it in o.Items)
-                                    {
-                                        <li>@it.ItemCode - @it.Qty x ₹@it.MRP.ToString("0.00")</li>
-                                    }
-                                </ul>
-                            </td>
+                            <td>@(o.Customers.FirstOrDefault()?.CustName ?? "-")</td>
                             <td>@o.TotalQty</td>
                             <td>₹@o.TotalAmount.ToString("0.00")</td>
                         </tr>
@@ -50,4 +42,4 @@ else
 {
     <div class="mt-3 text-muted">No recent orders.</div>
 }
- *@
+ 
