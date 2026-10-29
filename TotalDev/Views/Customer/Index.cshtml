@@ -1,0 +1,114 @@
+@model List<TotalDev.Models.Customer>
+@using TotalDev.Models
+
+@{
+    ViewData["Title"] = "Customer Management";
+
+    var editCustomer = ViewBag.FormCustomer as Customer
+        ?? ViewBag.EditCustomer as Customer;
+
+    var isEdit = !string.IsNullOrWhiteSpace(editCustomer?.Id);
+}
+
+<div class="container py-4">
+    <h2>Customer Management</h2>
+
+    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form asp-action="Save" method="post">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" name="Id" value="@editCustomer?.Id" />
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Customer Name *</label>
+                        <input name="CustName" class="form-control" maxlength="100" required value="@editCustomer?.CustName" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Mobile</label>
+                        <input name="Mobile" class="form-control" maxlength="20" value="@editCustomer?.Mobile" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">City</label>
+                        <input name="City" class="form-control" maxlength="100" value="@editCustomer?.City" />
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label">Address</label>
+                        <input name="Address" class="form-control" maxlength="500" value="@editCustomer?.Address" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Password (numbers only) *</label>
+                        <input name="Password" class="form-control" inputmode="numeric" pattern="[0-9]+" maxlength="100" required autocomplete="new-password" />
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">@(isEdit ? "Update" : "Save")</button>
+                    @if (isEdit)
+                    {
+                        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                    }
+                    else
+                    {
+                        <button type="reset" class="btn btn-secondary">Clear</button>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h5>Customer List</h5>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Mobile</th>
+                            <th>City</th>
+                            <th>Address</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Count > 0)
+                        {
+                            foreach (var c in Model)
+                            {
+                                <tr>
+                                    <td>@c.CustName</td>
+                                    <td>@c.Mobile</td>
+                                    <td>@c.City</td>
+                                    <td>@c.Address</td>
+                                    <td>
+                                        <a asp-action="Index" asp-route-editId="@c.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+
+                                        <form asp-action="Delete" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@c.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                        </form> 
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="5">No customers found.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

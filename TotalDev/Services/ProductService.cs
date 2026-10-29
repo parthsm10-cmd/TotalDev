@@ -103,4 +103,24 @@ public class ProductService
 
         return result.DeletedCount > 0;
     }
+
+    // Get next numeric ItemCode (max numeric ItemCode + 1)
+    public async Task<string> GetNextItemCodeAsync()
+    {
+        // Project only ItemCode values
+        var codes = await _products
+            .Find(Builders<Product>.Filter.Empty)
+            .Project(p => p.ItemCode)
+            .ToListAsync();
+
+        var max = codes
+            .Select(c => {
+                if (int.TryParse(c, out var v)) return v;
+                return 0;
+            })
+            .DefaultIfEmpty(0)
+            .Max();
+
+        return (max + 1).ToString();
+    }
 }

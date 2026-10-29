@@ -1,60 +1,661 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Http
+
+@{
+    var userId = Context.Session.GetString("UserId");
+    var isLoggedIn = !string.IsNullOrWhiteSpace(userId);
+    var userName = Context.Session.GetString("UserName");
+
+    var controllerName = ViewContext.RouteData.Values["controller"]?.ToString();
+    var actionName = ViewContext.RouteData.Values["action"]?.ToString();
+
+    // Role stored in session at login (e.g. "Admin" or "Customer")
+    var userRole = Context.Session.GetString("UserRole") ?? string.Empty;
+    var isAdmin = string.Equals(userRole, "Admin", StringComparison.OrdinalIgnoreCase);
+    var isCustomer = string.Equals(userRole, "Customer", StringComparison.OrdinalIgnoreCase);
+
+    var isLoginPage = controllerName == "Account"
+                      && actionName == "Login";
+
+    ViewData["Title"] ??= "Home";
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - TotalDev</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - Patel Dairy</title>
+    <meta name="theme-color" content="#14532D" />
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TotalDev.styles.css" asp-append-version="true" />
+    <link rel="icon" type="image/svg+xml" href="~/favicon.svg" asp-append-version="true" />
+    <link rel="manifest" href="~/manifest.json" />
+
+    @await RenderSectionAsync("Styles", required: false)
+
+    <style>
+            :root {
+                /* Blue theme: primary, darker accent, and light tints */
+                --pd-green: #14532D; /* Primary brand - Forest Green */
+                --pd-dark-green: #166534; /* Primary button hover / darker accent - Deep Green */
+                --pd-secondary: #16A34A; /* Secondary fresh green */
+                --pd-primary-bg: #FFFFFF; /* Primary background - White */
+                --pd-page-bg: #F8FAF8; /* Page background - Soft Natural White */
+                --pd-light-green: #F0FDF4; /* Light green background - Mint Green */
+                --pd-border: #E5E7EB; /* Borders - Light Gray */
+                --pd-text: #1F2937; /* Primary text - Dark Charcoal */
+                --pd-secondary-text: #6B7280; /* Secondary text - Muted Gray */
+                --pd-sidebar-width: 250px;
+                --pd-success: #15803D; /* Success messages */
+                --pd-danger: #DC2626; /* Sale / discount labels */
+                --pd-sidebar-text: #f7fbff; /* off-white for sidebar text */
+                --pd-sidebar-width: 250px;
+            }
+
+            body {
+                margin: 0;
+                background: #f7f9f7;
+                color: var(--pd-text);
+                font-family: Arial, Helvetica, sans-serif;
+                font-size: 15px;
+            }
+
+            /* Left vertical sidebar */
+            .pd-sidebar {
+                position: fixed;
+                inset: 0 auto 0 0;
+                z-index: 1040;
+                display: flex;
+                flex-direction: column;
+                width: var(--pd-sidebar-width);
+                padding: 22px 15px 16px;
+                color: #fff;
+                background: linear-gradient(180deg, var(--pd-green) 0%, var(--pd-dark-green) 100%);
+                box-shadow: 3px 0 18px rgba(24, 62, 39, .12);
+                overflow-y: auto;
+                transition: transform .25s ease;
+            }
+
+            .pd-brand {
+                display: flex;
+                align-items: center;
+                gap: 11px;
+                padding: 0 9px 24px;
+                margin-bottom: 20px;
+                color: var(--pd-sidebar-text) !important;
+                text-decoration: none;
+                border-bottom: 1px solid rgba(255,255,255,.2);
+            }
+
+            .pd-brand-icon {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                flex: 0 0 46px;
+                width: 46px;
+                height: 46px;
+                color: var(--pd-green);
+                background: #fff;
+                border-radius: 12px;
+                font-family: Georgia, serif;
+                font-size: 21px;
+                font-weight: 800;
+                box-shadow: 0 4px 10px rgba(0,0,0,.12);
+            }
+
+            .pd-brand-name {
+                display: block;
+                font-size: 20px;
+                line-height: 1.2;
+                font-weight: 700;
+            }
+
+            .pd-brand small {
+                display: block;
+                margin-top: 4px;
+                color: rgba(255,255,255,.75);
+                font-size: 11px;
+                font-weight: 400;
+                letter-spacing: .35px;
+            }
+
+            .pd-menu-label {
+                padding: 0 13px 10px;
+                color: rgba(255,255,255,.62);
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+            }
+
+            .pd-nav {
+                display: flex;
+                flex-direction: column;
+                gap: 7px;
+            }
+
+            .pd-nav-link {
+                display: flex;
+                align-items: center;
+                gap: 13px;
+                width: 100%;
+                padding: 13px 14px;
+                color: rgba(255,255,255,.88) !important;
+                text-decoration: none;
+                font-size: 14px;
+                font-weight: 600;
+                border: 1px solid transparent;
+                border-radius: 10px;
+                transition: background .2s ease, color .2s ease, transform .2s ease;
+            }
+
+                .pd-nav-link:hover {
+                    color: #fff !important;
+                    background: rgba(255,255,255,.12);
+                    transform: translateX(2px);
+                }
+
+                .pd-nav-link.active {
+                    color: var(--pd-dark-green) !important;
+                    background: #fff;
+                    border-color: rgba(255,255,255,.55);
+                    box-shadow: 0 5px 13px rgba(0,0,0,.1);
+                }
+
+            .pd-nav-icon {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 22px;
+                font-size: 18px;
+                line-height: 1;
+            }
+
+            .pd-sidebar-bottom {
+                margin-top: auto;
+                padding-top: 20px;
+            }
+
+            .pd-welcome {
+                display: flex;
+                align-items: center;
+                gap: 11px;
+                padding: 13px 10px;
+                margin-bottom: 12px;
+                background: rgba(255,255,255,.1);
+                border: 1px solid rgba(255,255,255,.12);
+                border-radius: 10px;
+            }
+
+            .pd-welcome-avatar {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex: 0 0 36px;
+                width: 36px;
+                height: 36px;
+                color: var(--pd-dark-green);
+                background: #fff;
+                border-radius: 50%;
+                font-size: 15px;
+                font-weight: 800;
+            }
+
+            .pd-welcome-text {
+                min-width: 0;
+                color: #fff;
+                font-size: 12px;
+                font-weight: 600;
+                overflow-wrap: anywhere;
+            }
+
+                .pd-welcome-text small {
+                    display: block;
+                    margin-top: 3px;
+                    color: rgba(255,255,255,.68);
+                    font-size: 11px;
+                    font-weight: 400;
+                }
+
+            .pd-logout {
+                display: flex;
+                align-items: center;
+                gap: 13px;
+                width: 100%;
+                padding: 12px 14px;
+                color: var(--pd-sidebar-text) !important;
+                background: rgba(255,255,255,.08);
+                border: 1px solid rgba(255,255,255,.22);
+                border-radius: 10px;
+                text-decoration: none;
+                font-weight: 600;
+                transition: background .2s ease;
+            }
+
+                .pd-logout:hover {
+                    color: var(--pd-dark-green) !important;
+                    background: #fff;
+                }
+
+            /* Page area next to sidebar */
+            .pd-main {
+                min-height: calc(100vh - 64px);
+                margin-left: var(--pd-sidebar-width);
+                padding: 28px 0;
+            }
+
+            .pd-page-container {
+                width: 100%;
+                max-width: 1500px;
+                margin: 0 auto;
+                padding: 0 26px;
+            }
+
+            .pd-page-heading {
+                margin-bottom: 22px;
+            }
+
+                .pd-page-heading h1 {
+                    margin-bottom: 6px;
+                    color: var(--pd-dark-green);
+                    font-size: 27px;
+                    font-weight: 700;
+                }
+
+                .pd-page-heading p {
+                    margin: 0;
+                    color: #68736b;
+                }
+
+            .pd-card {
+                height: 100%;
+                padding: 22px;
+                background: #fff;
+                border: 1px solid var(--pd-border);
+                border-radius: 10px;
+                box-shadow: 0 3px 12px rgba(30, 70, 42, .035);
+            }
+
+                .pd-card h5 {
+                    margin-bottom: 10px;
+                    color: var(--pd-dark-green);
+                    font-weight: 700;
+                }
+
+                .pd-card p {
+                    margin-bottom: 16px;
+                    color: #667168;
+                }
+
+            .pd-btn {
+                display: inline-block;
+                padding: 9px 16px;
+                color: var(--pd-sidebar-text);
+                background: var(--pd-green);
+                border: 1px solid var(--pd-green);
+                border-radius: 6px;
+                text-decoration: none;
+                font-weight: 600;
+            }
+
+                .pd-btn:hover {
+                color: var(--pd-sidebar-text);
+                    background: var(--pd-dark-green);
+                }
+
+            .pd-footer {
+                margin-left: var(--pd-sidebar-width);
+                padding: 17px 0;
+                background: #fff;
+                border-top: 1px solid var(--pd-border);
+                color: #69736b;
+                font-size: 13px;
+            }
+
+                .pd-footer strong {
+                    color: var(--pd-green);
+                }
+
+            .pd-mobile-topbar,
+            .pd-sidebar-overlay {
+                display: none;
+            }
+
+            /* Keep the login screen independent of the sidebar layout */
+            body.pd-login-body {
+                background: #fff;
+            }
+
+                body.pd-login-body .pd-main {
+                    min-height: 100vh;
+                    margin-left: 0;
+                    padding: 0;
+                }
+
+                body.pd-login-body .pd-page-container {
+                    max-width: none;
+                    padding: 0;
+                }
+
+            @@media (max-width: 767.98px) {
+                .pd-sidebar {
+                    width: min(280px, 85vw);
+                    transform: translateX(-105%);
+                }
+
+                body.pd-sidebar-open .pd-sidebar {
+                    transform: translateX(0);
+                }
+
+                .pd-mobile-topbar {
+                    position: sticky;
+                    top: 0;
+                    z-index: 1030;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    min-height: 62px;
+                    padding: 10px 15px;
+                    background: #fff;
+                    border-bottom: 2px solid var(--pd-green);
+                    box-shadow: 0 2px 8px rgba(0,0,0,.05);
+                }
+
+                .pd-mobile-toggle {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 40px;
+                    height: 40px;
+                    color: var(--pd-sidebar-text);
+                    background: var(--pd-green);
+                    border: 0;
+                    border-radius: 8px;
+                    font-size: 23px;
+                }
+
+                .pd-mobile-title {
+                    color: var(--pd-dark-green);
+                    font-size: 18px;
+                    font-weight: 700;
+                }
+
+                    .pd-mobile-title small {
+                        display: block;
+                        color: #68736b;
+                        font-size: 10px;
+                        font-weight: 400;
+                    }
+
+                body.pd-sidebar-open .pd-sidebar-overlay {
+                    position: fixed;
+                    inset: 0;
+                    z-index: 1035;
+                    display: block;
+                    background: rgba(15, 30, 20, .45);
+                }
+
+                .pd-main {
+                    min-height: calc(100vh - 110px);
+                    margin-left: 0;
+                    padding: 20px 0;
+                }
+
+                .pd-page-container {
+                    padding: 0 14px;
+                }
+
+                .pd-page-heading h1 {
+                    font-size: 23px;
+                }
+
+                .pd-footer {
+                    margin-left: 0;
+                    padding: 15px;
+                }
+            }
+    </style>
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">TotalDev</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link text-dark"
-                               asp-area=""
-                               asp-controller="Products"
-                               asp-action="Index">Item</a>
-                        </li>
+<body class="@(isLoginPage ? "pd-login-body" : "")">
 
+    @if (!isLoginPage && isLoggedIn)
+    {
+        <div class="pd-sidebar-overlay" id="pdSidebarOverlay"></div>
 
+        <aside class="pd-sidebar" id="pdSidebar" aria-label="Main navigation">
+            <a class="pd-brand" asp-controller="Home" asp-action="Index">
+                <span class="pd-brand-icon">PD</span>
+                <span>
+                    <span class="pd-brand-name">Patel Dairy</span>
+                    <small>Fresh Dairy Products</small>
+                </span>
+            </a>
 
-                    </ul>
+            <div class="pd-menu-label">Main Menu</div>
+
+            <nav class="pd-nav">
+                @if (isAdmin)
+                {
+                    <a class="pd-nav-link @(controllerName == "Home" && actionName == "Index" ? "active" : "")"
+                       asp-controller="Home" asp-action="Index">
+                        <span class="pd-nav-icon" aria-hidden="true">⌂</span>
+                        <span>Home</span>
+                    </a>
+
+                    <a class="pd-nav-link @(controllerName == "Products" ? "active" : "")"
+                       asp-controller="Products" asp-action="Index">
+                        <span class="pd-nav-icon" aria-hidden="true">▤</span>
+                        <span>Item</span>
+                    </a>
+
+                    <a class="pd-nav-link @(controllerName == "Customer" ? "active" : "")"
+                       asp-controller="Customer" asp-action="Index">
+                        <span class="pd-nav-icon" aria-hidden="true">♙</span>
+                        <span>Customer</span>
+                    </a>
+
+                    <a class="pd-nav-link @(controllerName == "User" ? "active" : "")"
+                       asp-controller="Order" asp-action="Create">
+                        <span class="pd-nav-icon" aria-hidden="true">♙</span>
+                        <span>Order</span>
+                    </a>
+
+                    <a class="pd-nav-link @(controllerName == "User" ? "active" : "")"
+                       asp-controller="User" asp-action="Index">
+                        <span class="pd-nav-icon" aria-hidden="true">♙</span>
+                        <span>User</span>
+                    </a>
+                }
+                else
+                {
+
+                    <a class="pd-nav-link @(controllerName == "User" ? "active" : "")"
+                       asp-controller="Customer" asp-action="CustomerHome">
+                        <span class="pd-nav-icon" aria-hidden="true">♙</span>
+                        <span>Home</span>
+                    </a>
+                    <a class="pd-nav-link @(controllerName == "User" ? "active" : "")"
+                       asp-controller="Order" asp-action="Create">
+                        <span class="pd-nav-icon" aria-hidden="true">♙</span>
+                        <span>Order</span>
+                    </a>
+                }
+            </nav>
+
+            <div class="pd-sidebar-bottom">
+                <div class="pd-welcome">
+                    <span class="pd-welcome-avatar">PD</span>
+                    <span class="pd-welcome-text">
+                        @if (!string.IsNullOrWhiteSpace(userName))
+                        {
+                            @userName
+                            <small>Management Panel</small>
+                        }
+                        else
+                        {
+                            <text>Welcome to Patel Dairy</text>
+                            <small>Management Panel</small>
+                        }
+                    </span>
                 </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - TotalDev - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                <a class="pd-logout" asp-controller="Home" asp-action="Logout">
+                    <span class="pd-nav-icon" aria-hidden="true">↪</span>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <div class="pd-mobile-topbar">
+            <button class="pd-mobile-toggle" id="pdMobileToggle"
+                    type="button" aria-label="Open menu"
+                    aria-controls="pdSidebar" aria-expanded="false">
+                ☰
+            </button>
+            <div class="pd-mobile-title">
+                Patel Dairy
+                <small>Fresh Dairy Products</small>
+            </div>
         </div>
-    </footer>
+    }
+
+    <main role="main" class="pd-main">
+        @if (isLoginPage)
+        {
+            @RenderBody()
+        }
+        else
+        {
+            <div class="pd-page-container">
+                @RenderBody()
+            </div>
+        }
+    </main>
+
+    @if (!isLoginPage && isLoggedIn)
+    {
+        <footer class="pd-footer">
+            <div class="container d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2">
+                <span>
+                    © @DateTime.Now.Year <strong>Patel Dairy</strong>
+                    — Fresh Dairy Products
+                </span>
+                <a asp-controller="Home" asp-action="Privacy" class="text-decoration-none">
+                    Privacy
+                </a>
+            </div>
+        </footer>
+    }
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+            // Show server-side TempData messages using SweetAlert2
+            (function () {
+                var success = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["Success"] ?? null));
+                var error = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["Error"] ?? null));
+                var warning = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["Warning"] ?? null));
+                var info = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["Info"] ?? null));
+
+                function showIf(val, icon, title) {
+                    if (val) {
+                        Swal.fire({
+                            icon: icon,
+                            title: title,
+                            text: val,
+                            // don't auto-close; require user to click OK
+                            showConfirmButton: true,
+                            confirmButtonText: 'OK',
+                            // keep default modal position so confirm button appears at bottom of dialog
+                            allowOutsideClick: true
+                        });
+                    }
+                }
+
+                document.addEventListener('DOMContentLoaded', function () {
+                    showIf(success, 'success', 'Success');
+                    showIf(error, 'error', 'Error');
+                    showIf(warning, 'warning', 'Warning');
+                    showIf(info, 'info', 'Info');
+
+                    // Attach SweetAlert confirmations to forms with class 'swal-confirm'
+                    document.querySelectorAll('form.swal-confirm').forEach(function (form) {
+                        form.addEventListener('submit', function (e) {
+                            e.preventDefault();
+                            var message = form.getAttribute('data-message') || 'Are you sure?';
+                            Swal.fire({
+                                title: 'Confirm',
+                                text: message,
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonText: 'OK',
+                                cancelButtonText: 'Cancel',
+                                allowOutsideClick: false
+                            }).then(function (result) {
+                                if (result.isConfirmed) {
+                                    form.submit();
+                                }
+                            });
+                        });
+                    });
+                });
+            })();
+
+            (() => {
+                const toggle = document.getElementById("pdMobileToggle");
+                const overlay = document.getElementById("pdSidebarOverlay");
+
+                function closeSidebar() {
+                    document.body.classList.remove("pd-sidebar-open");
+                    if (toggle) {
+                        toggle.setAttribute("aria-expanded", "false");
+                        toggle.setAttribute("aria-label", "Open menu");
+                    }
+                }
+
+                if (toggle) {
+                    toggle.addEventListener("click", () => {
+                        const isOpen = document.body.classList.toggle("pd-sidebar-open");
+                        toggle.setAttribute("aria-expanded", String(isOpen));
+                        toggle.setAttribute("aria-label", isOpen ? "Close menu" : "Open menu");
+                    });
+                }
+
+                if (overlay) {
+                    overlay.addEventListener("click", closeSidebar);
+                }
+
+                document.querySelectorAll(".pd-sidebar .pd-nav-link, .pd-sidebar .pd-logout")
+                    .forEach(link => link.addEventListener("click", () => {
+                        if (window.matchMedia("(max-width: 767.98px)").matches) {
+                            closeSidebar();
+                        }
+                    }));
+
+                window.addEventListener("resize", () => {
+                    if (window.matchMedia("(min-width: 768px)").matches) {
+                        closeSidebar();
+                    }
+                });
+            })();
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(function (reg) { console.log('ServiceWorker registered', reg); })
+                    .catch(function (err) { console.warn('ServiceWorker registration failed:', err); });
+            });
+        }
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

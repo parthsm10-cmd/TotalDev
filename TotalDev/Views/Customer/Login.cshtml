@@ -1,0 +1,320 @@
+
+@{
+    ViewData["Title"] = "Customer Login";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        body.pd-login-body {
+            background: #f0f7f1;
+        }
+
+            body.pd-login-body .pd-main {
+                min-height: 100vh;
+                margin-left: 0;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: radial-gradient(circle at 10% 15%, #d9f3df 0, transparent 35%), radial-gradient(circle at 90% 85%, #e0f2e5 0, transparent 35%), #f6faf6;
+            }
+
+            body.pd-login-body .pd-page-container {
+                width: 100%;
+                max-width: none;
+                padding: 0;
+            }
+
+        .customer-login-wrapper {
+            min-height: 100vh;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            box-sizing: border-box;
+        }
+
+        .customer-login-card {
+            width: 100%;
+            max-width: 440px;
+            overflow: hidden;
+            background: #fff;
+            border: 1px solid #dcebe0;
+            border-radius: 20px;
+            box-shadow: 0 18px 55px rgba(20, 83, 45, .10);
+        }
+
+        .customer-login-top {
+            padding: 30px 32px 25px;
+            text-align: center;
+            background: linear-gradient(145deg, #14532d, #166534);
+            color: #fff;
+        }
+
+        .customer-brand {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 11px;
+            margin-bottom: 23px;
+        }
+
+        .customer-brand-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 13px;
+            background: #fff;
+            color: #14532d;
+            font-family: Georgia, serif;
+            font-size: 23px;
+            font-weight: 800;
+        }
+
+        .customer-brand-name {
+            text-align: left;
+            font-size: 20px;
+            line-height: 1.2;
+            font-weight: 750;
+        }
+
+            .customer-brand-name small {
+                display: block;
+                margin-top: 4px;
+                color: #d4ead9;
+                font-size: 11px;
+                font-weight: 400;
+            }
+
+        .customer-avatar {
+            width: 76px;
+            height: 76px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 13px;
+            border: 3px solid rgba(255,255,255,.45);
+            border-radius: 50%;
+            background: rgba(255,255,255,.14);
+            color: #fff;
+            font-size: 35px;
+        }
+
+        .customer-login-top h1 {
+            margin: 0 0 8px;
+            font-size: 25px;
+            font-weight: 750;
+        }
+
+        .customer-portal-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border: 1px solid rgba(255,255,255,.25);
+            border-radius: 30px;
+            background: rgba(255,255,255,.12);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 650;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+        }
+
+        .customer-login-body {
+            padding: 29px 32px 25px;
+        }
+
+        .customer-welcome {
+            margin-bottom: 23px;
+        }
+
+            .customer-welcome h2 {
+                margin: 0 0 6px;
+                color: #163b25;
+                font-size: 21px;
+                font-weight: 750;
+            }
+
+            .customer-welcome p {
+                margin: 0;
+                color: #718078;
+                font-size: 13px;
+            }
+
+        .customer-login-body .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #34483b;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .customer-login-body .form-control {
+            min-height: 47px;
+            padding: 11px 13px;
+            border: 1px solid #d8e3db;
+            border-radius: 9px;
+            background: #fbfdfb;
+            font-size: 14px;
+            box-shadow: none;
+        }
+
+            .customer-login-body .form-control:focus {
+                border-color: #16803d;
+                background: #fff;
+                box-shadow: 0 0 0 3px rgba(22,128,61,.10);
+            }
+
+        .customer-login-btn {
+            width: 100%;
+            min-height: 47px;
+            margin-top: 9px;
+            border: 0;
+            border-radius: 9px;
+            background: linear-gradient(135deg, #15803d, #166534);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 750;
+            transition: transform .2s, box-shadow .2s;
+        }
+
+            .customer-login-btn:hover {
+                color: #fff;
+                transform: translateY(-1px);
+                box-shadow: 0 7px 18px rgba(22,101,52,.20);
+            }
+
+        .customer-login-bottom {
+            padding: 15px 20px;
+            border-top: 1px solid #edf2ee;
+            background: #f9fcf9;
+            color: #849188;
+            text-align: center;
+            font-size: 11px;
+        }
+
+            .customer-login-bottom strong {
+                color: #166534;
+            }
+
+        .customer-login-body .validation-summary-errors {
+            padding: 10px 12px;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            background: #fef2f2;
+            color: #b91c1c;
+            font-size: 12px;
+        }
+
+        @@media (max-width: 480px) {
+            .customer-login-wrapper {
+                padding: 14px;
+            }
+
+            .customer-login-card {
+                border-radius: 16px;
+            }
+
+            .customer-login-top {
+                padding: 25px 20px 22px;
+            }
+
+            .customer-login-body {
+                padding: 25px 21px 22px;
+            }
+
+            .customer-login-top h1 {
+                font-size: 23px;
+            }
+        }
+    </style>
+}
+
+<div class="customer-login-wrapper">
+    <div class="customer-login-card">
+
+        <div class="customer-login-top">
+            <div class="customer-brand">
+                <div class="customer-brand-icon">PD</div>
+                <div class="customer-brand-name">
+                    Patel Dairy
+                    <small>Fresh Dairy Products</small>
+                </div>
+            </div>
+
+          
+            <h1>Customer Login</h1>
+
+            <span class="customer-portal-badge">
+                <span aria-hidden="true">✓</span>
+                Customer Portal
+            </span>
+        </div>
+
+        <div class="customer-login-body">
+
+            <div class="customer-welcome">
+                <h2>Welcome Back!</h2>
+                <p>Sign in to manage your dairy orders.</p>
+            </div>
+
+            <form asp-controller="Customer"
+                  asp-action="Login"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger mb-3">
+                </div>
+
+                <div class="mb-3">
+                    <label for="name" class="form-label">
+                        Customer Username
+                    </label>
+
+                    <input type="text"
+                           id="name"
+                           name="name"
+                           class="form-control"
+                           placeholder="Enter your username"
+                           autocomplete="username"
+                           required />
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">
+                        Password
+                    </label>
+
+                    <input type="password"
+                           id="password"
+                           name="password"
+                           class="form-control"
+                           placeholder="Enter your password"
+                           autocomplete="current-password"
+                           required />
+                </div>
+
+                <button type="submit" class="btn customer-login-btn">
+                    Sign In to Customer Account →
+                </button>
+            </form>
+        </div>
+
+        <div class="customer-login-bottom">
+            © @DateTime.Now.Year <strong>Patel Dairy</strong>
+            · Freshness Delivered with Care
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

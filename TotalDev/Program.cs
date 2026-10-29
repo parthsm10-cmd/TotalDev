@@ -8,6 +8,14 @@ var builder = WebApplication.CreateBuilder(args);
 // 1. Register MVC
 builder.Services.AddControllersWithViews();
 
+// Add session support
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(1);
+    options.Cookie.HttpOnly = true;
+});
+
 // 2. Register MongoDB Client
 builder.Services.AddSingleton<IMongoClient>(sp =>
 {
@@ -26,10 +34,16 @@ builder.Services.AddSingleton<IMongoClient>(sp =>
     return new MongoClient(connectionString);
 });
 
-// 3. Register Product Service
+// 3. Register Services
 builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<CustomerService>();
+builder.Services.AddScoped<OrderService>();
 
 var app = builder.Build();
+
+// Use session
+app.UseSession();
 
 // 4. Test MongoDB connection and create collection if missing
 try
@@ -73,6 +87,40 @@ try
         Console.WriteLine(
             $"INFO: Collection '{collectionName}' already exists.");
     }
+
+    // Ensure Users collection exists
+    var usersCollectionName =
+        configuration["MongoDbSettings:UsersCollectionName"]
+        ?? "Users";
+
+    if (!collectionNames.Contains(usersCollectionName))
+    {
+        await database.CreateCollectionAsync(usersCollectionName);
+
+        Console.WriteLine(
+            $"SUCCESS: Collection '{usersCollectionName}' created!");
+    }
+    else
+    {
+        Console.WriteLine(
+            $"INFO: Collection '{usersCollectionName}' already exists.");
+    }
+
+    // Ensure Orders collection exists
+    var ordersCollectionName =
+        configuration["MongoDbSettings:OrdersCollectionName"]
+        ?? "Orders";
+
+    if (!collectionNames.Contains(ordersCollectionName))
+    {
+        await database.CreateCollectionAsync(ordersCollectionName);
+
+        Console.WriteLine($"SUCCESS: Collection '{ordersCollectionName}' created!");
+    }
+    else
+    {
+        Console.WriteLine($"INFO: Collection '{ordersCollectionName}' already exists.");
+    }
 }
 catch (Exception ex)
 {
@@ -99,7 +147,7 @@ app.UseAuthorization();
 // 6. Configure default route
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Login}/{id?}");
 
 // 7. Start application
 app.Run();

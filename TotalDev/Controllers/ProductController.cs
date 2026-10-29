@@ -36,6 +36,13 @@ public class ProductsController : Controller
                     return NotFound();
             }
 
+            // If not editing, prefill ItemCode with next numeric code
+            if (string.IsNullOrWhiteSpace(editId) && editProduct == null)
+            {
+                var nextCode = await _service.GetNextItemCodeAsync();
+                editProduct = new Product { ItemCode = nextCode };
+            }
+
             ViewBag.EditProduct = editProduct;
             return View(products);
         }
@@ -51,6 +58,17 @@ public class ProductsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Save(Product product)
     {
+        // Normalize IsActive from checkbox (checkbox posts value when checked)
+        // Treat any truthy checkbox value as 1, otherwise 0
+        var form = HttpContext.Request.Form;
+        if (form != null && form.TryGetValue("IsActive", out var isActiveVal))
+        {
+            // StringValues may contain multiple entries (hidden + checkbox). Take the last value.
+            var s = isActiveVal.Count > 0 ? isActiveVal[isActiveVal.Count - 1] : isActiveVal.ToString();
+            s = s?.Trim().ToLowerInvariant();
+            product.IsActive = (s == "on" || s == "true" || s == "1") ? 1 : 0;
+        }
+
         if (!ModelState.IsValid)
         {
             ViewBag.FormProduct = product;
@@ -71,7 +89,7 @@ public class ProductsController : Controller
                 ViewBag.FormProduct = product;
                 return View("Index", await _service.GetAllAsync());
             }
-
+            
             if (isNew)
                 await _service.CreateAsync(product);
             else if (!await _service.UpdateAsync(product))

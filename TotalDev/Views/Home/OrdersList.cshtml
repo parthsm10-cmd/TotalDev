@@ -1,0 +1,55 @@
+@model List<TotalDev.Models.Order>
+@using TotalDev.Models
+
+@{
+    ViewData["Title"] = "Orders";
+}
+
+<div class="pd-page-heading">
+    <h1>Customer Orders</h1>
+    <p>List of orders placed by customers.</p>
+</div>
+
+<div class="table-shell">
+    <div class="table-responsive">
+        <table class="table product-table">
+            <thead>
+                <tr>
+                    <th>Order Date</th>
+                    <th>Customer</th>
+                    <th>Items</th>
+                    <th>Total Qty</th>
+                    <th>Total Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Count > 0)
+                {
+                    foreach (var o in Model)
+                    {
+                        <tr>
+                            <td>@o.Ord_Date.ToString("g")</td>
+                            <td>@(o.CustomerId ?? "-")</td>
+                            <td>
+                                <ul>
+                                    @foreach (var it in o.Items)
+                                    {
+                                        <li>@it.ItemCode - @it.Qty x ₹@it.MRP.ToString("0.00") = ₹@it.Amount.ToString("0.00")</li>
+                                    }
+                                </ul>
+                            </td>
+                            <td>@o.TotalQty</td>
+                            <td>₹@o.TotalAmount.ToString("0.00")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5">No orders found</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

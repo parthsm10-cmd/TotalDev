@@ -1,0 +1,681 @@
+@model TotalDev.Models.OrderCreateModel
+@using TotalDev.Models
+
+@{
+    ViewData["Title"] = "Create Order";
+    var customers = ViewBag.Customers as List<TotalDev.Models.Customer>
+                    ?? new List<TotalDev.Models.Customer>();
+    var products = ViewBag.Products as List<TotalDev.Models.Product>
+                   ?? new List<TotalDev.Models.Product>();
+}
+
+<style>
+    .order-page {
+        --order-primary: #2563eb;
+        --order-border: #e2e8f0;
+        --order-muted: #64748b;
+        background: #f8fafc;
+        min-height: auto;
+        height: auto;
+        padding: 10px 0;
+        margin: 0;
+        color: #0f172a;
+        font-size: 13px;
+    }
+
+    .order-content {
+        max-width: 1180px;
+        margin: 0 auto;
+    }
+
+    .order-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 9px;
+    }
+
+        .order-header h4 {
+            font-size: 19px;
+            font-weight: 750;
+            margin: 0;
+            letter-spacing: -.3px;
+        }
+
+        .order-header small {
+            color: var(--order-muted);
+            font-size: 12px;
+        }
+
+    .order-panel {
+        background: #fff;
+        border: 1px solid var(--order-border);
+        border-radius: 9px;
+        margin-bottom: 9px;
+        overflow: hidden;
+    }
+
+    .customer-panel {
+        padding: 8px 10px;
+    }
+
+    .customer-row {
+        display: grid;
+        grid-template-columns: auto minmax(220px, 1fr);
+        align-items: center;
+        gap: 12px;
+    }
+
+    .customer-label {
+        margin: 0;
+        white-space: nowrap;
+        font-weight: 700;
+        font-size: 12px;
+        color: #334155;
+    }
+
+    .order-page .form-select,
+    .order-page .form-control {
+        border-color: #cbd5e1;
+        border-radius: 6px;
+        box-shadow: none !important;
+        font-size: 13px;
+    }
+
+        .order-page .form-select:focus,
+        .order-page .form-control:focus {
+            border-color: var(--order-primary);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, .10) !important;
+        }
+
+    .customer-select {
+        min-height: 35px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+
+    .products-panel {
+        overflow: hidden;
+    }
+
+    .products-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 8px 10px;
+        border-bottom: 1px solid var(--order-border);
+        background: #fff;
+    }
+
+    .products-heading {
+        min-width: 100px;
+    }
+
+        .products-heading strong {
+            font-size: 14px;
+        }
+
+        .products-heading small {
+            display: block;
+            color: var(--order-muted);
+            font-size: 11px;
+        }
+
+    .table-scroll {
+        width: 100%;
+        overflow-x: hidden;
+    }
+
+    .product-table {
+        width: 100%;
+        max-width: 100%;
+        border-collapse: collapse;
+        margin: 0;
+        table-layout: fixed;
+    }
+
+        .product-table thead th {
+            background: #f1f5f9;
+            color: #475569;
+            font-size: 11px;
+            font-weight: 750;
+            text-transform: uppercase;
+            letter-spacing: .25px;
+            padding: 8px 10px;
+            border-bottom: 1px solid #dbe3ee;
+            white-space: nowrap;
+        }
+
+        .product-table tbody tr {
+            border-bottom: 1px solid #edf2f7;
+        }
+
+            .product-table tbody tr:last-child {
+                border-bottom: 0;
+            }
+
+            .product-table tbody tr:hover {
+                background: #f8fbff;
+            }
+
+        .product-table td {
+            padding: 5px 10px;
+            height: 43px;
+            vertical-align: middle;
+            font-size: 12px;
+        }
+
+        .product-table .col-item {
+            width: 46%;
+        }
+
+        .product-table .col-rate {
+            width: 20%;
+        }
+
+        .product-table .col-qty {
+            width: 14%;
+        }
+
+        .product-table .col-amount {
+            width: 20%;
+        }
+
+    .item-name {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        white-space: normal;
+        color: #0f172a;
+        font-size: 12px;
+        line-height: 1.3;
+        font-weight: 650;
+        overflow-wrap: anywhere;
+        word-break: normal;
+    }
+
+    .item-rate {
+        white-space: nowrap;
+        font-weight: 650;
+        color: #334155;
+    }
+
+    .item-unit {
+        color: #64748b;
+        font-size: 10px;
+        font-weight: 400;
+    }
+
+    .qty-input {
+        display: block;
+        width: 100%;
+        max-width: 76px;
+        min-width: 0;
+        min-height: 31px;
+        margin: 0 auto;
+        padding: 3px 4px;
+        text-align: center;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .item-amount {
+        white-space: nowrap;
+        text-align: right;
+        padding-left: 2px !important;
+        padding-right: 7px !important;
+        font-size: 12px;
+        font-weight: 700;
+        color: #0f172a;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .list-tools {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 10px;
+        border-top: 1px solid var(--order-border);
+        color: var(--order-muted);
+        font-size: 11px;
+    }
+
+    .clear-btn {
+        padding: 4px 9px;
+        font-size: 11px;
+    }
+
+    .order-footer {
+        position: static;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 12px;
+        padding: 10px 12px;
+        background: #fff;
+        border: 1px solid #dbe3ee;
+        border-radius: 9px;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, .04);
+        box-sizing: border-box;
+    }
+
+    .footer-summary {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        min-width: 0;
+    }
+
+    .footer-actions {
+        display: flex;
+        gap: 7px;
+        flex-shrink: 0;
+    }
+
+    .footer-stat {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.2;
+    }
+
+        .footer-stat small {
+            color: var(--order-muted);
+            font-size: 10px;
+        }
+
+        .footer-stat strong {
+            font-size: 13px;
+            font-weight: 750;
+        }
+
+    .footer-total strong {
+        font-size: 19px;
+        color: #1d4ed8;
+    }
+
+    .footer-actions {
+        display: flex;
+        gap: 7px;
+        flex-shrink: 0;
+    }
+
+    .btn-reset {
+        min-height: 36px;
+        padding: 0 12px;
+        border: 1px solid #cbd5e1;
+        background: #fff;
+        color: #334155;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 650;
+    }
+
+    .btn-submit {
+        min-height: 36px;
+        padding: 0 17px;
+        border: 0;
+        border-radius: 6px;
+        background: var(--order-primary);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+        .btn-submit:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+    @@media (min-width: 768px) {
+        .order-page {
+            padding: 10px 0;
+        }
+    }
+
+    @@media (max-width: 575.98px) {
+        .order-page {
+            padding: 8px 0;
+        }
+
+        .order-footer {
+            gap: 7px;
+            padding: 8px;
+        }
+    }
+
+        .order-header {
+            margin-bottom: 7px;
+        }
+
+            .order-header h4 {
+                font-size: 17px;
+            }
+
+            .order-header small {
+                font-size: 10px;
+            }
+
+        .customer-row {
+            grid-template-columns: 1fr;
+            gap: 5px;
+        }
+
+        .customer-panel {
+            padding: 8px;
+        }
+
+        .products-toolbar {
+            align-items: center;
+            flex-direction: row;
+            gap: 6px;
+            padding: 8px;
+        }
+
+        .products-heading {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+        }
+
+            .products-heading small {
+                display: inline;
+            }
+
+        .product-table {
+            min-width: 0;
+            width: 100%;
+        }
+
+            .product-table thead th {
+                padding: 7px 4px;
+                font-size: 10px;
+            }
+
+            .product-table td {
+                padding: 5px 4px;
+                height: auto;
+                min-height: 42px;
+                overflow-wrap: anywhere;
+            }
+
+            .product-table .col-item {
+                width: 44%;
+            }
+
+            .product-table .col-rate {
+                width: 21%;
+            }
+
+            .product-table .col-qty {
+                width: 15%;
+            }
+
+            .product-table .col-amount {
+                width: 20%;
+            }
+
+        .item-name {
+            font-size: 11px;
+        }
+
+        .qty-input {
+            min-width: 0;
+            width: 100%;
+            max-width: 60px;
+            font-size: 11px !important;
+            padding-left: 2px;
+            padding-right: 2px;
+        }
+
+        .item-rate {
+            white-space: normal;
+            overflow-wrap: anywhere;
+            font-size: 11px;
+        }
+
+        .item-unit {
+            display: inline;
+            font-size: 9px;
+        }
+
+        .item-amount {
+            font-size: 11px;
+            padding-right: 4px !important;
+        }
+
+        .list-tools {
+            padding: 6px 8px;
+        }
+
+        .footer-summary {
+            gap: 10px;
+        }
+
+        .footer-stat small {
+            font-size: 9px;
+        }
+
+        .footer-stat strong {
+            font-size: 11px;
+        }
+
+        .footer-total strong {
+            font-size: 16px;
+        }
+
+        .order-footer {
+            gap: 7px;
+            padding-left: 8px;
+            padding-right: 8px;
+        }
+
+        .btn-reset {
+            padding: 0 8px;
+            min-height: 35px;
+        }
+
+        .btn-submit {
+            padding: 0 10px;
+            min-height: 35px;
+            font-size: 11px;
+        }
+    }
+
+    @@media (max-width: 380px) {
+        .footer-summary {
+            gap: 7px;
+        }
+
+        .footer-stat:nth-child(2) {
+            display: none;
+        }
+
+        .footer-total strong {
+            font-size: 15px;
+        }
+    }
+</style>
+
+<div class="order-page">
+    <div class="container-fluid px-0">
+        <div class="order-content">
+            <div class="order-header">
+                <div>
+                    <h4>Create Order</h4>
+                </div>
+            </div>
+
+            <form asp-action="Create" method="post" id="orderForm">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+
+                <section class="order-panel customer-panel">
+                    <div class="customer-row">
+                        <label for="CustomerId" class="customer-label">
+                            Customer <span class="text-danger">*</span>
+                        </label>
+                        <select id="CustomerId" name="CustomerId" class="form-select customer-select" required>
+                            <option value="">Search / select customer</option>
+                            @foreach (var c in customers)
+                            {
+                                <option value="@c.Id">@c.CustName</option>
+                            }
+                        </select>
+                    </div>
+                </section>
+
+                <section class="order-panel products-panel">
+                    <div class="table-scroll">
+                        <table class="product-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-item">Item</th>
+                                    <th class="col-rate">Rate</th>
+                                    <th class="col-qty">Qty</th>
+                                    <th class="col-amount text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productList">
+                                @for (int i = 0; i < products.Count; i++)
+                                {
+                                    var p = products[i];
+                                    <tr class="product-row" data-code="@p.ItemCode" data-name="@p.ItemName" data-unit="@p.Unit">
+                                        <td>
+                                            <span class="item-name">@p.ItemName</span>
+                                        </td>
+                                        <td class="item-rate">
+                                            ₹@p.MRP.ToString("0.00")
+                                            <span class="item-unit">/ @p.Unit</span>
+                                        </td>
+                                        <td>
+                                            <input type="number" step="1" min="0" value="0" inputmode="decimal"
+                                                   class="form-control qty-input item-qty"
+                                                   name="Items[@i].Qty"
+                                                   aria-label="Quantity for @p.ItemName" />
+                                        </td>
+                                        <td class="item-amount text-end">0.00</td>
+
+                                        <input type="hidden" name="Items[@i].ItemId" value="@p.Id" />
+                                        <input type="hidden" name="Items[@i].ItemCode" value="@p.ItemCode" />
+                                        <input type="hidden" name="Items[@i].Unit" value="@p.Unit" />
+                                        <input type="hidden" name="Items[@i].MRP" value="@p.MRP" />
+                                        <input type="hidden" class="item-mrp" value="@p.MRP" />
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    @* <div class="list-tools">
+                        <span>Enter quantity only for the items being ordered.</span>
+                        <button type="button" id="clearQuantities" class="btn btn-outline-secondary clear-btn">
+                            Clear quantities
+                        </button>
+                    </div> *@
+                </section>
+
+                <div class="order-footer">
+                    <div class="footer-summary">
+                        <div class="footer-stat">
+                            <small>Total quantity</small>
+                            <strong id="totalQty">0.000</strong>
+                        </div>
+                        <div class="footer-stat footer-total">
+                            <small>Grand total</small>
+                            <strong>₹<span id="totalAmount">0.00</span></strong>
+                        </div>
+                    </div>
+                    <div class="footer-actions">
+                        <button type="reset" class="btn-reset">Reset</button>
+                        <button type="submit" id="placeOrderBtn" class="btn-submit">
+                            Place Order · ₹<span id="footerAmount">0.00</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const form = document.getElementById('orderForm');
+            const productRows = Array.from(document.querySelectorAll('.product-row'));
+            const totalQtyEl = document.getElementById('totalQty');
+            const totalAmountEl = document.getElementById('totalAmount');
+            const footerAmountEl = document.getElementById('footerAmount');
+            const selectedProductsEl = document.getElementById('selectedProducts');
+            const submitBtn = document.getElementById('placeOrderBtn');
+
+            function recalculate() {
+                let totalQty = 0;
+                let totalAmount = 0;
+                let selected = 0;
+
+                productRows.forEach(function (row) {
+                    const qtyInput = row.querySelector('.item-qty');
+                    const qty = Math.max(0, Number(qtyInput.value) || 0);
+                    const mrp = Number(row.querySelector('.item-mrp').value) || 0;
+                    const amount = qty * mrp;
+
+                    row.querySelector('.item-amount').textContent = amount.toFixed(2);
+                    totalQty += qty;
+                    totalAmount += amount;
+                    if (qty > 0) selected++;
+                });
+
+                totalQtyEl.textContent = totalQty.toFixed(3);
+                totalAmountEl.textContent = totalAmount.toFixed(2);
+                footerAmountEl.textContent = totalAmount.toFixed(2);
+                selectedProductsEl.textContent = selected + ' selected';
+                submitBtn.disabled = selected === 0;
+            }
+
+
+            document.getElementById('productList').addEventListener('input', function (event) {
+                if (event.target.classList.contains('item-qty')) recalculate();
+            });
+
+
+            form.addEventListener('reset', function () {
+                setTimeout(function () {
+                    recalculate();
+                }, 0);
+            });
+
+            form.addEventListener('submit', function (event) {
+                const customer = document.getElementById('CustomerId');
+                if (!customer.value) {
+                    event.preventDefault();
+                    customer.focus();
+                    alert('Please select a customer.');
+                    return;
+                }
+
+                const hasItems = productRows.some(function (row) {
+                    return Number(row.querySelector('.item-qty').value) > 0;
+                });
+
+                if (!hasItems) {
+                    event.preventDefault();
+                    alert('Please enter a quantity for at least one item.');
+                    return;
+                }
+
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    form.reportValidity();
+                }
+            });
+
+            recalculate();
+        })();
+    </script>
+}
