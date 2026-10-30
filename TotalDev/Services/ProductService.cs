@@ -1,123 +1,61 @@
-
-using MongoDB.Bson;
-using MongoDB.Driver;
+using Microsoft.EntityFrameworkCore;
+using TotalDev.Data;
 using TotalDev.Models;
 
 namespace TotalDev.Services;
 
-public class ProductService
+public class ProductService(AppDbContext db)
 {
-    private readonly IMongoCollection<Product> _products;
+    public Task<List<Product>> GetAllAsync() =>
+        db.Products.AsNoTracking().OrderBy(p => p.ItemName).ToListAsync();
 
-    public ProductService(
-        IMongoClient client,
-        IConfiguration configuration)
-    {
-        var databaseName =
-            configuration["MongoDbSettings:DatabaseName"]
-            ?? throw new InvalidOperationException(
-                "Database name missing.");
+    public Task<Product?> GetByIdAsync(int id) =>
+        db.Products.AsNoTracking().FirstOrDefaultAsync(p => p.ItemCode == id);
 
-        var collectionName =
-            configuration["MongoDbSettings:ProductsCollectionName"]
-            ?? throw new InvalidOperationException(
-                "Collection name missing.");
+    public Task<bool> ItemCodeExistsAsync(int itemCode, string? excludeId = null) =>
+        db.Products.AnyAsync(p => p.ItemCode == itemCode && (excludeId == null || p.Id != excludeId));
 
-        var database = client.GetDatabase(databaseName);
-
-        _products = database.GetCollection<Product>(
-            collectionName);
-    }
-
-    // READ: All products
-    public async Task<List<Product>> GetAllAsync()
-    {
-        return await _products
-            .Find(Builders<Product>.Filter.Empty)
-            .SortBy(p => p.ItemName)
-            .ToListAsync();
-    }
-
-    // READ: One product
-    public async Task<Product?> GetByIdAsync(int id)
-    {
-        return await _products
-            .Find(p => p.ItemCode == id)
-            .FirstOrDefaultAsync();
-    }
-
-    // Check duplicate ItemCode
-    public async Task<bool> ItemCodeExistsAsync(
-         int itemCode, string? excludeId = null)
-    {
-        var filter = Builders<Product>.Filter
-            .Eq(p => p.ItemCode, itemCode);
-
-        if (!string.IsNullOrWhiteSpace(excludeId))
-        {
-            filter &= Builders<Product>.Filter
-                .Ne(p => p.Id, excludeId);
-        }
-
-        return await _products
-            .Find(filter)
-            .AnyAsync();
-    }
-
-    // CREATE
     public async Task CreateAsync(Product product)
     {
-        product.Id = null;
-        product.ItemCode = product.ItemCode;
-
-        await _products.InsertOneAsync(product);
+        product.Id = Guid.NewGuid().ToString("N");
+        product.ItemCode = await GetNextItemCodeAsync();
+        product.createdOn = DateTime.UtcNow;
+        product.modifyOn = DateTime.UtcNow;
+        await db.Products.AddAsync(product);
+        await db.SaveChangesAsync();
     }
 
-    // UPDATE
     public async Task<bool> UpdateAsync(Product product)
     {
-        if (string.IsNullOrWhiteSpace(product.Id) ||
-            !ObjectId.TryParse(product.Id, out _))
-            return false;
+        if (string.IsNullOrWhiteSpace(product.Id)) return false;
+        var existing = await db.Products.FirstOrDefaultAsync(p => p.Id == product.Id);
+        if (existing is null) return false;
 
-        product.ItemCode = Convert.ToInt32(product.ItemCode);
-
-        var result = await _products.ReplaceOneAsync(
-            p => p.Id == product.Id,
-            product);
-
-        return result.MatchedCount > 0;
+        existing.ItemCode = product.ItemCode;
+        existing.ItemName = product.ItemName;
+        existing.Unit = product.Unit;
+        existing.Qty = product.Qty;
+        existing.MRP = product.MRP;
+        existing.Remarks = product.Remarks;
+        existing.IsActive = product.IsActive;
+        existing.modifyby = product.modifyby;
+        existing.modifyOn = DateTime.UtcNow;
+        await db.SaveChangesAsync();
+        return true;
     }
 
-    // DELETE
     public async Task<bool> DeleteAsync(string id)
     {
-        if (!ObjectId.TryParse(id, out _))
-            return false;
-
-        var result = await _products.DeleteOneAsync(
-            p => p.Id == id);
-
-        return result.DeletedCount > 0;
+        var product = await db.Products.FirstOrDefaultAsync(p => p.Id == id);
+        if (product is null) return false;
+        db.Products.Remove(product);
+        await db.SaveChangesAsync();
+        return true;
     }
 
-    // Get next numeric ItemCode (max numeric ItemCode + 1)
-    public async Task<string> GetNextItemCodeAsync()
+    public async Task<int> GetNextItemCodeAsync()
     {
-        // Project only ItemCode values
-        var codes = await _products
-            .Find(Builders<Product>.Filter.Empty)
-            .Project(p => p.ItemCode)
-            .ToListAsync();
-
-        var max = codes
-            .Select(c => {
-                if (int.TryParse(c.ToString(), out var v)) return v;
-                return 0;
-            })
-            .DefaultIfEmpty(0)
-            .Max();
-
-        return (max + 1).ToString();
+        var max = await db.Products.Select(p => (int?)p.ItemCode).MaxAsync() ?? 0;
+        return max + 1;
     }
 }

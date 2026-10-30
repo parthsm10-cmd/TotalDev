@@ -1,121 +1,62 @@
-using MongoDB.Bson;
-using MongoDB.Driver;
+using Microsoft.EntityFrameworkCore;
+using TotalDev.Data;
 using TotalDev.Models;
 
 namespace TotalDev.Services;
 
-public class UserService
+public class UserService(AppDbContext db)
 {
-    private readonly IMongoCollection<User> _users;
+    public Task<List<User>> GetAllAsync() =>
+        db.Users.AsNoTracking().OrderBy(u => u.UserCode).ToListAsync();
 
-    public UserService(
-        IMongoClient client,
-        IConfiguration configuration)
-    {
-        var databaseName =
-            configuration["MongoDbSettings:DatabaseName"]
-            ?? throw new InvalidOperationException(
-                "Database name missing.");
+    public Task<User?> GetByIdAsync(string id) =>
+        db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
 
-        var collectionName =
-            configuration["MongoDbSettings:UsersCollectionName"]
-            ?? "Users";
+    public Task<bool> UserCodeExistsAsync(string userCode, string? excludeId = null) =>
+        db.Users.AnyAsync(u => u.UserCode == userCode && (excludeId == null || u.Id != excludeId));
 
-        var database = client.GetDatabase(databaseName);
-
-        _users = database.GetCollection<User>(collectionName);
-    }
-
-    // READ: All users
-    public async Task<List<User>> GetAllAsync()
-    {
-        return await _users
-            .Find(Builders<User>.Filter.Empty)
-            .SortBy(u => u.UserCode)
-            .ToListAsync();
-    }
-
-    // READ: One user
-    public async Task<User?> GetByIdAsync(string id)
-    {
-        if (!ObjectId.TryParse(id, out _))
-            return null;
-
-        return await _users
-            .Find(u => u.Id == id)
-            .FirstOrDefaultAsync();
-    }
-
-    // Check duplicate UserCode
-    public async Task<bool> UserCodeExistsAsync(
-        string userCode, string? excludeId = null)
-    {
-        var filter = Builders<User>.Filter
-            .Eq(u => u.UserCode, userCode);
-
-        if (!string.IsNullOrWhiteSpace(excludeId))
-        {
-            filter &= Builders<User>.Filter
-                .Ne(u => u.Id, excludeId);
-        }
-
-        return await _users
-            .Find(filter)
-            .AnyAsync();
-    }
-
-    // CREATE
     public async Task CreateAsync(User user)
     {
-        user.Id = null;
+        user.Id = Guid.NewGuid().ToString("N");
         user.UserCode = user.UserCode.Trim();
-
-        await _users.InsertOneAsync(user);
+        user.createdOn = DateTime.UtcNow;
+        user.modifyOn = DateTime.UtcNow;
+        await db.Users.AddAsync(user);
+        await db.SaveChangesAsync();
     }
 
-    // UPDATE
     public async Task<bool> UpdateAsync(User user)
     {
-        if (string.IsNullOrWhiteSpace(user.Id) ||
-            !ObjectId.TryParse(user.Id, out _))
-            return false;
+        if (string.IsNullOrWhiteSpace(user.Id)) return false;
+        var existing = await db.Users.FirstOrDefaultAsync(u => u.Id == user.Id);
+        if (existing is null) return false;
 
-        user.UserCode = user.UserCode.Trim();
-
-        var result = await _users.ReplaceOneAsync(
-            u => u.Id == user.Id,
-            user);
-
-        return result.MatchedCount > 0;
+        existing.UserCode = user.UserCode.Trim();
+        existing.UserName = user.UserName;
+        existing.Mobile = user.Mobile;
+        existing.City = user.City;
+        existing.Address = user.Address;
+        existing.Password = user.Password;
+        existing.IsActive = user.IsActive;
+        existing.modifyby = user.modifyby;
+        existing.modifyOn = DateTime.UtcNow;
+        await db.SaveChangesAsync();
+        return true;
     }
 
-    // DELETE
     public async Task<bool> DeleteAsync(string id)
     {
-        if (!ObjectId.TryParse(id, out _))
-            return false;
-
-        var result = await _users.DeleteOneAsync(u => u.Id == id);
-
-        return result.DeletedCount > 0;
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Id == id);
+        if (user is null) return false;
+        db.Users.Remove(user);
+        await db.SaveChangesAsync();
+        return true;
     }
 
-    // Get next numeric UserCode (max numeric UserCode + 1)
     public async Task<string> GetNextUserCodeAsync()
     {
-        var codes = await _users
-            .Find(Builders<User>.Filter.Empty)
-            .Project(u => u.UserCode)
-            .ToListAsync();
-
-        var max = codes
-            .Select(c => {
-                if (int.TryParse(c, out var v)) return v;
-                return 0;
-            })
-            .DefaultIfEmpty(0)
-            .Max();
-
+        var codes = await db.Users.Select(u => u.UserCode).ToListAsync();
+        var max = codes.Select(c => int.TryParse(c, out var value) ? value : 0).DefaultIfEmpty(0).Max();
         return (max + 1).ToString();
     }
 }

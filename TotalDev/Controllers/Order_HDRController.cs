@@ -80,7 +80,7 @@ namespace TotalDev.Controllers
                     return View("Index", model);
                 }
 
-                // 4. Load products from MongoDB.
+                // 4. Load products from SQL Server.
                 var products = await _productService.GetAllAsync();
 
                 var productLookup = products.ToDictionary(

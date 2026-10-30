@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver;
 using System.Linq;
 using TotalDev.Models;
 using TotalDev.Services;
@@ -39,7 +38,7 @@ namespace TotalDev.Controllers
                 ViewBag.EditCustomer = editCustomer;
                 return View(customers);
             }
-            catch (MongoException ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Loading customers failed.");
                 return Problem("Customers load failed.");
@@ -78,7 +77,7 @@ namespace TotalDev.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
-            catch (MongoException ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Saving customer failed.");
                 return Problem("Customer save failed.");
@@ -98,7 +97,7 @@ namespace TotalDev.Controllers
                 TempData["Success"] = "Customer deleted successfully!";
                 return RedirectToAction(nameof(Index));
             }
-            catch (MongoException ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Deleting customer failed.");
                 return Problem("Customer delete failed.");

@@ -348,8 +348,8 @@
 
                             @foreach (var unit in new[]
                             {
-                                "Piece", "Packet", "Kg", "Gram",
-                                "Litre", "ML", "Dozen"
+                                "Crate", "Packet", "Kg", "Gram",
+                                "Litre", "ML"
                             })
                             {
                                 if (editProduct?.Unit == unit)
@@ -494,7 +494,7 @@
                                 <td>
                                     <div class="action-buttons">
                                         <a asp-action="Index"
-                                           asp-route-editId="@item.Id"
+                                           asp-route-editId="@item.ItemCode"
                                            class="btn btn-edit">
                                             Edit
                                         </a>
