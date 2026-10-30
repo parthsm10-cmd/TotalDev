@@ -110,9 +110,18 @@ namespace TotalDev.Controllers
         }
         public IActionResult Logout()
         {
-            HttpContext.Session.Clear();
-
-            return RedirectToAction("Login", "Home");
+            
+            var role = HttpContext.Session.GetString("UserRole") ?? string.Empty;
+            if (string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                HttpContext.Session.Clear();
+                return RedirectToAction("Login", "Home");
+            }
+            else
+            {
+                HttpContext.Session.Clear();
+                return RedirectToAction("Login", "Customer");
+            }
         }
     }
 }

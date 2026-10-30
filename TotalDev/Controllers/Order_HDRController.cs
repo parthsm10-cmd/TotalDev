@@ -1,5 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using TotalDev.Models;
 using TotalDev.Services;
@@ -29,45 +28,128 @@ namespace TotalDev.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            await LoadFormData();
+            var userRole =
+                HttpContext.Session.GetString("UserRole") ?? "";
 
-            return View(new CreateOrderViewModel
+            var sessionUserId =
+                HttpContext.Session.GetString("UserId");
+
+            bool isAdmin = string.Equals(
+                userRole,
+                "Admin",
+                StringComparison.OrdinalIgnoreCase);
+
+            bool isCustomer = string.Equals(
+                userRole,
+                "Customer",
+                StringComparison.OrdinalIgnoreCase);
+
+            if (!isAdmin && !isCustomer)
+            {
+                return Unauthorized();
+            }
+
+            var model = new CreateOrderViewModel
             {
                 Ord_Date = DateTime.Today
-            });
+            };
+
+            // Customer login: automatically select own customer.
+            if (isCustomer)
+            {
+                if (string.IsNullOrWhiteSpace(sessionUserId))
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
+                model.CustomerId = sessionUserId;
+            }
+
+            await LoadFormData();
+
+            return View(model);
         }
 
         // POST: /Order_HDR/Index
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Index(CreateOrderViewModel model)
+        public async Task<IActionResult> Index(
+            CreateOrderViewModel model)
         {
             try
             {
-                // 1. Get customer ID from session if required.
-                var sessionCustomerId =
+                // 1. Get login role and session UserId.
+                var userRole =
+                    HttpContext.Session.GetString("UserRole") ?? "";
+
+                var sessionUserId =
                     HttpContext.Session.GetString("UserId");
 
-                if (string.IsNullOrWhiteSpace(model.CustomerId) &&
-                    !string.IsNullOrWhiteSpace(sessionCustomerId))
+                bool isAdmin = string.Equals(
+                    userRole,
+                    "Admin",
+                    StringComparison.OrdinalIgnoreCase);
+
+                bool isCustomer = string.Equals(
+                    userRole,
+                    "Customer",
+                    StringComparison.OrdinalIgnoreCase);
+
+                // 2. Allow only Admin and Customer.
+                if (!isAdmin && !isCustomer)
                 {
-                    model.CustomerId = sessionCustomerId;
+                    return Unauthorized();
                 }
 
-                // 2. Validate customer.
-                if (string.IsNullOrWhiteSpace(model.CustomerId))
+                // 3. Customer login: force session UserId.
+                if (isCustomer)
+                {
+                    if (string.IsNullOrWhiteSpace(sessionUserId))
+                    {
+                        ModelState.AddModelError(
+                            string.Empty,
+                            "Session expired. Please login again.");
+                    }
+                    else
+                    {
+                        // Ignore posted CustomerId.
+                        model.CustomerId = sessionUserId;
+                    }
+                }
+
+                // 4. Admin must select a customer.
+                if (isAdmin &&
+                    string.IsNullOrWhiteSpace(model.CustomerId))
                 {
                     ModelState.AddModelError(
                         nameof(model.CustomerId),
                         "Please select a customer.");
                 }
 
-                // 3. Get only items with quantity greater than zero.
+                // 5. Validate that the customer exists.
+                if (!string.IsNullOrWhiteSpace(model.CustomerId))
+                {
+                    var customers =
+                        await _customerService.GetAllAsync();
+
+                    bool customerExists = customers.Any(c =>
+                        c.Id.ToString() == model.CustomerId);
+
+                    if (!customerExists)
+                    {
+                        ModelState.AddModelError(
+                            nameof(model.CustomerId),
+                            "Invalid customer selected.");
+                    }
+                }
+
+                // 6. Get items with quantity greater than zero.
                 var selectedItems = model.Items?
                     .Where(x => x.Qty > 0)
                     .ToList();
 
-                if (selectedItems == null || selectedItems.Count == 0)
+                if (selectedItems == null ||
+                    selectedItems.Count == 0)
                 {
                     ModelState.AddModelError(
                         string.Empty,
@@ -80,8 +162,9 @@ namespace TotalDev.Controllers
                     return View("Index", model);
                 }
 
-                // 4. Load products from SQL Server.
-                var products = await _productService.GetAllAsync();
+                // 7. Load products from database.
+                var products =
+                    await _productService.GetAllAsync();
 
                 var productLookup = products.ToDictionary(
                     p => p.Id.ToString(),
@@ -92,12 +175,13 @@ namespace TotalDev.Controllers
 
                 var detailList = new List<Order_Details>();
 
-                // 5. Prepare item-wise order details.
+                // 8. Prepare order details.
                 foreach (var item in selectedItems!)
                 {
                     if (string.IsNullOrWhiteSpace(item.ItemId) ||
                         !productLookup.TryGetValue(
-                            item.ItemId, out var product))
+                            item.ItemId,
+                            out var product))
                     {
                         ModelState.AddModelError(
                             string.Empty,
@@ -109,8 +193,9 @@ namespace TotalDev.Controllers
                     if (item.Qty <= 0)
                         continue;
 
-                    // Use database price rather than posted price.
+                    // Always use database MRP.
                     decimal rate = product.MRP;
+
                     decimal amount = item.Qty * rate;
 
                     totalQty += item.Qty;
@@ -126,52 +211,56 @@ namespace TotalDev.Controllers
                     });
                 }
 
-                // Do not save if any submitted product is invalid.
-                if (!ModelState.IsValid || detailList.Count == 0)
+                // 9. Stop saving if product validation fails.
+                if (!ModelState.IsValid ||
+                    detailList.Count == 0)
                 {
                     await LoadFormData();
                     return View("Index", model);
                 }
 
-                // 6. Prepare main order header.
+                // 10. Prepare order header.
                 var header = new Order_HDR
                 {
                     Ord_Date = model.Ord_Date,
+
+                    // Customer ID comes from selected Admin value
+                    // or forced session UserId for Customer.
                     CustomerId = model.CustomerId,
+
                     TotalQty = totalQty,
                     TotalAmount = totalAmount,
                     CreatedOn = DateTime.UtcNow,
                     Modify_On = DateTime.UtcNow
-
-                    // Set CreatedBy here if you store the
-                    // logged-in user's numeric ID in session.
                 };
 
-                // 7. Save header and details using OrderService.
+                // 11. Save order header and details.
                 await _orderService.CreateOrderAsync(
-                    header, detailList);
+                    header,
+                    detailList);
 
                 TempData["Success"] =
                     "Order created successfully.";
 
-                // 8. Redirect to the existing Index action.
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
                 _logger.LogError(
-                    ex, "An error occurred while creating an order.");
+                    ex,
+                    "An error occurred while creating an order.");
 
                 ModelState.AddModelError(
                     string.Empty,
                     "Order could not be created. Please try again.");
 
                 await LoadFormData();
+
                 return View("Index", model);
             }
         }
 
-        // Reload dropdown and product data for the view.
+        // 12. Load dropdown and product data.
         private async Task LoadFormData()
         {
             ViewBag.Customers =

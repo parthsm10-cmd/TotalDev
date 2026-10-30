@@ -130,7 +130,7 @@ namespace TotalDev.Controllers
                 // also store a display name for layout
                 HttpContext.Session.SetString("UserName", "Dev");
                 HttpContext.Session.SetString("UserRole", "Admin"); // Optional: Set a role for the default user
-                return RedirectToAction(nameof(CustomerHome));
+                return RedirectToAction(nameof(CreateOrder));
             }
 
             try
@@ -146,7 +146,7 @@ namespace TotalDev.Controllers
                     // store username for display in layout
                     HttpContext.Session.SetString("UserName", user.CustName ?? string.Empty);
                     HttpContext.Session.SetString("UserRole", "Customer"); // Optional: Set a role for the user
-                    return RedirectToAction(nameof(CustomerHome));
+                    return RedirectToAction(nameof(CreateOrder));
                 }
                 else
                 {
@@ -174,6 +174,20 @@ namespace TotalDev.Controllers
             }
 
             return View();
+        }
+        [HttpGet]
+        public IActionResult CreateOrder()
+        {
+            var userId = HttpContext.Session.GetString("UserId");
+            var userRole = HttpContext.Session.GetString("UserRole");
+
+            if (string.IsNullOrWhiteSpace(userId) ||
+                !string.Equals(userRole, "Customer", StringComparison.OrdinalIgnoreCase))
+            {
+                return RedirectToAction(nameof(Login));
+            }
+
+            return RedirectToAction("Index", "Order_HDR");
         }
 
     }
