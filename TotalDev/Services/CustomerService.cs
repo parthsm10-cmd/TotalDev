@@ -1,73 +1,50 @@
-using MongoDB.Bson;
-using MongoDB.Driver;
+using Microsoft.EntityFrameworkCore;
+using TotalDev.Data;
 using TotalDev.Models;
 
 namespace TotalDev.Services;
 
-public class CustomerService
+public class CustomerService(AppDbContext db)
 {
-    private readonly IMongoCollection<Customer> _customers;
+    public Task<List<Customer>> GetAllAsync() =>
+        db.Customers.AsNoTracking().OrderBy(c => c.CustName).ToListAsync();
 
-    public CustomerService(
-        IMongoClient client,
-        IConfiguration configuration)
-    {
-        var databaseName =
-            configuration["MongoDbSettings:DatabaseName"]
-            ?? throw new InvalidOperationException("Database name missing.");
-
-        var collectionName =
-            configuration["MongoDbSettings:CustomersCollectionName"]
-            ?? "Customers";
-
-        var database = client.GetDatabase(databaseName);
-
-        _customers = database.GetCollection<Customer>(collectionName);
-    }
-
-    public async Task<List<Customer>> GetAllAsync()
-    {
-        return await _customers
-            .Find(Builders<Customer>.Filter.Empty)
-            .SortBy(c => c.CustName)
-            .ToListAsync();
-    }
-
-    public async Task<Customer?> GetByIdAsync(string id)
-    {
-        if (!ObjectId.TryParse(id, out _))
-            return null;
-
-        return await _customers
-            .Find(c => c.Id == id)
-            .FirstOrDefaultAsync();
-    }
+    public Task<Customer?> GetByIdAsync(string id) =>
+        db.Customers.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
 
     public async Task CreateAsync(Customer customer)
     {
-        customer.Id = null;
-        await _customers.InsertOneAsync(customer);
+        customer.Id = Guid.NewGuid().ToString("N");
+        customer.createdOn = DateTime.UtcNow;
+        customer.modifyOn = DateTime.UtcNow;
+        await db.Customers.AddAsync(customer);
+        await db.SaveChangesAsync();
     }
 
     public async Task<bool> UpdateAsync(Customer customer)
     {
-        if (string.IsNullOrWhiteSpace(customer.Id) ||
-            !ObjectId.TryParse(customer.Id, out _))
-            return false;
+        if (string.IsNullOrWhiteSpace(customer.Id)) return false;
+        var existing = await db.Customers.FirstOrDefaultAsync(c => c.Id == customer.Id);
+        if (existing is null) return false;
 
-        var result = await _customers.ReplaceOneAsync(
-            c => c.Id == customer.Id,
-            customer);
-
-        return result.MatchedCount > 0;
+        existing.CustName = customer.CustName;
+        existing.Mobile = customer.Mobile;
+        existing.City = customer.City;
+        existing.Address = customer.Address;
+        existing.Password = customer.Password;
+        existing.IsActive = customer.IsActive;
+        existing.modifyby = customer.modifyby;
+        existing.modifyOn = DateTime.UtcNow;
+        await db.SaveChangesAsync();
+        return true;
     }
 
     public async Task<bool> DeleteAsync(string id)
     {
-        if (!ObjectId.TryParse(id, out _))
-            return false;
-
-        var result = await _customers.DeleteOneAsync(c => c.Id == id);
-        return result.DeletedCount > 0;
+        var customer = await db.Customers.FirstOrDefaultAsync(c => c.Id == id);
+        if (customer is null) return false;
+        db.Customers.Remove(customer);
+        await db.SaveChangesAsync();
+        return true;
     }
 }

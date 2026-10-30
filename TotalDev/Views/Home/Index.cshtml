@@ -28,7 +28,7 @@
                     {
                         <tr>
                             <td>@o.Ord_Date.ToString("g")</td>
-                            <td>@(o.Customers.FirstOrDefault()?.CustName ?? "-")</td>
+                            <td>@(o.Customer?.CustName ?? "-")</td>
                             <td>@o.TotalQty</td>
                             <td>₹@o.TotalAmount.ToString("0.00")</td>
                         </tr>

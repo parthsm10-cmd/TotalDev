@@ -1,6 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver;
+﻿using Microsoft.AspNetCore.Mvc;
 using TotalDev.Models;
 using TotalDev.Services;
 
@@ -46,7 +44,7 @@ public class ProductsController : Controller
             ViewBag.EditProduct = editProduct;
             return View(products);
         }
-        catch (MongoException ex)
+        catch (Exception ex)
         {
             _logger.LogError(ex, "Loading products failed.");
             return Problem("Products load nahi ho sake.");
@@ -69,11 +67,11 @@ public class ProductsController : Controller
             product.IsActive = (s == "on" || s == "true" || s == "1") ? 1 : 0;
         }
 
-        if (!ModelState.IsValid)
-        {
-            ViewBag.FormProduct = product;
-            return View("Index", await _service.GetAllAsync());
-        }
+        //if (!ModelState.IsValid)
+        //{
+        //    ViewBag.FormProduct = product;
+        //    return View("Index", await _service.GetAllAsync());
+        //}
 
         try
         {
@@ -101,7 +99,7 @@ public class ProductsController : Controller
 
             return RedirectToAction(nameof(Index));
         }
-        catch (MongoException ex)
+        catch (Exception ex)
         {
             _logger.LogError(ex, "Saving product failed.");
             return Problem("Product save nahi hua.");
@@ -121,7 +119,7 @@ public class ProductsController : Controller
             TempData["Success"] = "Product deleted successfully!";
             return RedirectToAction(nameof(Index));
         }
-        catch (MongoException ex)
+        catch (Exception ex)
         {
             _logger.LogError(ex, "Deleting product failed.");
             return Problem("Product delete nahi hua.");

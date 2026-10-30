@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver;
 using System.Linq;
 using TotalDev.Models;
 using TotalDev.Services;
@@ -46,7 +45,7 @@ namespace TotalDev.Controllers
                 ViewBag.EditUser = editUser;
                 return View(users);
             }
-            catch (MongoException ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Loading users failed.");
                 return Problem("Users load failed.");
@@ -98,7 +97,7 @@ namespace TotalDev.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
-            catch (MongoException ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Saving user failed.");
                 return Problem("User save failed.");
@@ -118,7 +117,7 @@ namespace TotalDev.Controllers
                 TempData["Success"] = "User deleted successfully!";
                 return RedirectToAction(nameof(Index));
             }
-            catch (MongoException ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Deleting user failed.");
                 return Problem("User delete failed.");
