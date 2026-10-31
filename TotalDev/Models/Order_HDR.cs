@@ -6,7 +6,7 @@
 
         public DateTime Ord_Date { get; set; }
 
-        public string CustomerId { get; set; } = string.Empty;
+        public int CustomerId { get; set; }
 
         public Customer? Customer { get; set; }
 
@@ -35,7 +35,7 @@
 
         public DateTime Ref_Ord_Date { get; set; }
 
-        public string? CustomerId { get; set; }
+        public int CustomerId { get; set; }
 
         public int Item_Id { get; set; }
 

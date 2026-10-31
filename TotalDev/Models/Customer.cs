@@ -5,7 +5,7 @@ namespace TotalDev.Models;
 public class Customer
 {
     [Key]
-    public string? Id { get; set; }
+    public int Id { get; set; }
 
     [Required(ErrorMessage = "Customer name is required")]
     [StringLength(100)]

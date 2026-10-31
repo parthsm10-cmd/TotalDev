@@ -3,14 +3,16 @@
     ViewData["Title"] = "Home";
 }
 
-<div class="pd-page-heading">
-    <h1>Welcome to Patel Dairy</h1>
-    <p>Manage your dairy products and shop information from here.</p>
-    <small class="text-muted">Recent customer orders are shown below.</small>
-</div>
-
  @if (Model != null && Model.Count > 0)
 {
+    <a asp-controller="Order_HDR"
+   asp-action="OrderShow"
+   class="btn btn-primary">
+
+    <i class="bi bi-file-earmark-pdf"></i>
+    Order Show / Download PDF
+
+</a>
     <div class="table-shell mt-3">
         <div class="table-responsive">
             <table class="table product-table">
@@ -20,16 +22,21 @@
                         <th>Customer</th>
                         <th>Total Qty</th>
                         <th>Total Amount</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var o in Model.Take(10))
                     {
                         <tr>
-                            <td>@o.Ord_Date.ToString("g")</td>
+                            <td>@o.Ord_Date.ToString("dd-MM-yyyy")</td>
                             <td>@(o.Customer?.CustName ?? "-")</td>
                             <td>@o.TotalQty</td>
                             <td>₹@o.TotalAmount.ToString("0.00")</td>
+                            <td>
+                                <a asp-controller="Order_HDR" asp-action="Edit" asp-route-ordNo="@o.Ord_No"
+                                   asp-route-customerId="@o.CustomerId" class="btn btn-warning btn-sm">Edit</a>
+                            </td>
                         </tr>
                     }
                 </tbody>

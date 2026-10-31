@@ -37,7 +37,7 @@
                             </td>
 
                             <td>
-                                @(order.CustomerId ?? "-")
+                                @(order.CustomerId != 0 ? order.CustomerId.ToString() : "-")
                             </td>
 
                             <td>

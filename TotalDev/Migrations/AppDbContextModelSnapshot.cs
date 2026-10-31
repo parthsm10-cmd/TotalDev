@@ -24,9 +24,9 @@ namespace TotalDev.Migrations
 
             modelBuilder.Entity("TotalDev.Models.Customer", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<int>("Id")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("int");
 
                     b.Property<string>("Address")
                         .HasMaxLength(500)
@@ -89,9 +89,9 @@ namespace TotalDev.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("CustomerId")
+                    b.Property<int>("CustomerId")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("int");
 
                     b.Property<int>("Item_Id")
                         .HasColumnType("int");
@@ -146,10 +146,9 @@ namespace TotalDev.Migrations
                     b.Property<DateTime>("CreatedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("CustomerId")
-                        .IsRequired()
+                    b.Property<int>("CustomerId")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("int");
 
                     b.Property<int?>("Modify_By")
                         .HasColumnType("int");

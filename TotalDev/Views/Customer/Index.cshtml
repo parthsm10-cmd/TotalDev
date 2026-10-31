@@ -7,7 +7,7 @@
     var editCustomer = ViewBag.FormCustomer as Customer
         ?? ViewBag.EditCustomer as Customer;
 
-    var isEdit = !string.IsNullOrWhiteSpace(editCustomer?.Id);
+    var isEdit = editCustomer?.Id != null && editCustomer.Id > 0;
 }
 
 <div class="container py-4">

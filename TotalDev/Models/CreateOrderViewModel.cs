@@ -8,7 +8,7 @@ namespace TotalDev.Models
     {
         public DateTime Ord_Date { get; set; } = DateTime.Today;
 
-        public string? CustomerId { get; set; }
+        public int CustomerId { get; set; }
 
         public List<CreateOrderItemViewModel> Items { get; set; }
             = new List<CreateOrderItemViewModel>();

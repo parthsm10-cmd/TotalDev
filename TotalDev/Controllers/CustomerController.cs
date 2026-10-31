@@ -29,7 +29,7 @@ namespace TotalDev.Controllers
 
                 if (!string.IsNullOrWhiteSpace(editId))
                 {
-                    editCustomer = await _service.GetByIdAsync(editId);
+                    editCustomer = await _service.GetByIdAsync(Convert.ToInt32(editId));
 
                     if (editCustomer == null)
                         return NotFound();
@@ -66,7 +66,7 @@ namespace TotalDev.Controllers
 
             try
             {
-                var isNew = string.IsNullOrWhiteSpace(customer.Id);
+                var isNew = customer.Id == 0;
 
                 if (isNew)
                     await _service.CreateAsync(customer);
@@ -87,7 +87,7 @@ namespace TotalDev.Controllers
         // Delete
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(string id)
+        public async Task<IActionResult> Delete(int id)
         {
             try
             {
@@ -142,7 +142,7 @@ namespace TotalDev.Controllers
                 if (user != null)
                 {
                     // store user id in session
-                    HttpContext.Session.SetString("UserId", user.Id ?? string.Empty);
+                    HttpContext.Session.SetString("UserId", user.Id.ToString() ?? string.Empty);
                     // store username for display in layout
                     HttpContext.Session.SetString("UserName", user.CustName ?? string.Empty);
                     HttpContext.Session.SetString("UserRole", "Customer"); // Optional: Set a role for the user

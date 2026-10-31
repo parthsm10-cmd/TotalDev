@@ -14,8 +14,7 @@
     bool isAdmin = string.Equals(userRole, "Admin", StringComparison.OrdinalIgnoreCase);
     bool isCustomer = string.Equals(userRole, "Customer", StringComparison.OrdinalIgnoreCase);
 
-    var currentCustomer = customers.FirstOrDefault(
-        c => c.Id.ToString() == Model.CustomerId);
+    var currentCustomer = customers.FirstOrDefault(c => c.Id == Model.CustomerId);
 }
 
 <style>
@@ -465,8 +464,7 @@
             <div class="order-header">
                 <h4>Create Order</h4>
             </div>
-
-            @if (TempData["Success"] != null)
+              @if (TempData["Success"] != null)
             {
                 <div class="alert alert-success alert-dismissible fade show">
                     @TempData["Success"]
@@ -474,439 +472,446 @@
                             data-bs-dismiss="alert"></button>
                 </div>
             }
-
             <form asp-controller="Order_HDR"
-                  asp-action="Index"
+                  asp-action="@(ViewBag.IsEdit == true ? "Edit" : "Index")"
                   method="post"
                   id="orderForm">
 
                 @Html.AntiForgeryToken()
 
+                @if (ViewBag.IsEdit == true)
+                {
+                    <input type="hidden" name="ordNo" value="@ViewBag.Ord_No" />
+                    <input type="hidden" name="customerId" value="@Model.CustomerId" />
+                }
+
                 <div asp-validation-summary="All"
-                     class="text-danger small mb-2"></div>
+                        class="text-danger small mb-2"></div>
 
-                <!-- ORDER HEADER -->
-                <section class="order-panel header-panel">
+                        <!-- ORDER HEADER -->
+                        <section class="order-panel header-panel">
 
-                    <div class="header-grid">
+                            <div class="header-grid">
 
-                        <div>
-                            <label asp-for="Ord_Date" class="field-label">
-                                Order Date <span class="text-danger">*</span>
-                            </label>
+                                <div>
+                                    <label asp-for="Ord_Date" class="field-label">
+                                        Order Date <span class="text-danger">*</span>
+                                    </label>
 
-                            <input asp-for="Ord_Date"
-                                   type="date"
-                                   class="form-control"
-                                   required />
+                                    <input asp-for="Ord_Date"
+                                    type="date"
+                                    class="form-control"
+                                    required />
 
-                            <span asp-validation-for="Ord_Date"
-                                  class="text-danger small"></span>
-                        </div>
-
-                        <div>
-                            <label class="field-label">
-                                Customer <span class="text-danger">*</span>
-                            </label>
-
-                            @if (isAdmin)
-                            {
-                                <select asp-for="CustomerId"
-                                        class="form-select"
-                                        id="CustomerId"
-                                        required>
-
-                                    <option value="">Select Customer</option>
-
-                                    @foreach (var c in customers)
-                                    {
-                                        <option value="@c.Id">
-                                            @c.CustName
-                                        </option>
-                                    }
-                                </select>
-
-                                <span asp-validation-for="CustomerId"
-                                      class="text-danger small"></span>
-                            }
-                            else if (isCustomer)
-                            {
-                                <input asp-for="CustomerId" type="hidden" />
-
-                                <div class="customer-display">
-                                    @(currentCustomer?.CustName ?? "Logged-in Customer")
+                                    <span asp-validation-for="Ord_Date"
+                                    class="text-danger small"></span>
                                 </div>
-                            }
-                        </div>
 
-                    </div>
-                </section>
+                                <div>
+                                    <label class="field-label">
+                                        Customer <span class="text-danger">*</span>
+                                    </label>
 
-                <!-- PRODUCT DETAILS -->
-                <section class="order-panel">
+                                    @if (isAdmin)
+                                            {
+                                                <select asp-for="CustomerId"
+                                                class="form-select"
+                                                id="CustomerId"
+                                                required>
 
-                    <div class="products-toolbar">
-                        <div>
-                            <strong>Product Details</strong>
-                            <br />
-                            <small>
-                                Change quantity using + / − or type manually.
-                            </small>
-                        </div>
+                                                    <option value="">Select Customer</option>
 
-                        <small>
-                            <span id="selectedProducts">0 selected</span>
-                        </small>
-                    </div>
+                                                    @foreach (var c in customers)
+                                                        {
+                                                            <option value="@c.Id">
+                                                                @c.CustName
+                                                            </option>
+                                                        }
+                                                    </select>
 
-                    <div class="table-scroll">
+                                                    <span asp-validation-for="CustomerId"
+                                                    class="text-danger small"></span>
+                                            }
+                                            else if (isCustomer)
+                                            {
+                                                <input asp-for="CustomerId" type="hidden" />
 
-                        <table class="product-table">
+                                                <div class="customer-display">
+                                                    @(currentCustomer?.CustName ?? "Logged-in Customer")
+                                                </div>
+                                            }
+                                        </div>
 
-                            <thead>
-                                <tr>
-                                    <th class="col-item">Item</th>
-                                    <th class="col-rate">Rate</th>
-                                    <th class="col-qty text-center">Qty</th>
-                                    <th class="col-amount text-end">Amount</th>
-                                </tr>
-                            </thead>
+                                    </div>
+                                </section>
 
-                            <tbody id="productList">
+                                <!-- PRODUCT DETAILS -->
+                                <section class="order-panel">
 
-                                @for (int i = 0; i < products.Count; i++)
-                                {
-                                    var p = products[i];
+                                    <div class="products-toolbar">
+                                        <div>
+                                            <strong>Product Details</strong>
+                                            <br />
+                                            <small>
+                                                Change quantity using + / − or type manually.
+                                            </small>
+                                        </div>
 
-                                    var savedItem = Model.Items?
-                                        .FirstOrDefault(x =>
-                                            x.ItemId == p.Id.ToString());
+                                        <small>
+                                            <span id="selectedProducts">0 selected</span>
+                                        </small>
+                                    </div>
 
-                                    int savedQty = Math.Max(
-                                        0, (int)(savedItem?.Qty ?? 0m));
+                                    <div class="table-scroll">
 
-                                    <tr class="product-row"
-                                        data-rate="@p.MRP.ToString(CultureInfo.InvariantCulture)">
+                                        <table class="product-table">
 
-                                        <td>
-                                            <span class="item-name">
-                                                @p.ItemName
-                                            </span>
-                                        </td>
+                                            <thead>
+                                                <tr>
+                                                    <th class="col-item">Item</th>
+                                                    <th class="col-rate">Rate</th>
+                                                    <th class="col-qty text-center">Qty</th>
+                                                    <th class="col-amount text-end">Amount</th>
+                                                </tr>
+                                            </thead>
 
-                                        <td>
-                                            <div class="item-rate">
-                                                ₹@p.MRP.ToString("N2")
-                                            </div>
+                                            <tbody id="productList">
 
-                                            <span class="item-unit">
-                                                / @p.Unit
-                                            </span>
-                                        </td>
+                                                @for (int i = 0; i < products.Count; i++)
+                                                {
+                                                    var p = products[i];
 
-                                        <td>
-                                            <div class="qty-control">
+                                                    var savedItem = Model.Items?
+                                                        .FirstOrDefault(x =>
+                                                            x.ItemId == p.Id.ToString());
 
-                                                <button type="button"
-                                                        class="qty-btn qty-minus"
-                                                        aria-label="Decrease quantity">
-                                                    −
-                                                </button>
+                                                    int savedQty = Math.Max(
+                                                        0, (int)(savedItem?.Qty ?? 0m));
 
-                                                <input type="text"
-                                                       inputmode="numeric"
-                                                       pattern="[0-9]*"
-                                                       autocomplete="off"
-                                                       class="form-control qty-input item-qty"
-                                                       name="Items[@i].Qty"
-                                                       value="@savedQty"
-                                                       aria-label="Quantity for @p.ItemName" />
+                                                    <tr class="product-row"
+                                                    data-rate="@p.MRP.ToString(CultureInfo.InvariantCulture)">
 
-                                                <button type="button"
-                                                        class="qty-btn qty-plus"
-                                                        aria-label="Increase quantity">
-                                                    +
-                                                </button>
+                                                        <td>
+                                                            <span class="item-name">
+                                                                @p.ItemName
+                                                            </span>
+                                                        </td>
 
-                                            </div>
-                                        </td>
+                                                        <td>
+                                                            <div class="item-rate">
+                                                                ₹@p.MRP.ToString("N2")
+                                                            </div>
 
-                                        <td class="item-amount">
-                                            ₹0.00
-                                        </td>
+                                                            <span class="item-unit">
+                                                                / @p.Unit
+                                                            </span>
+                                                        </td>
 
-                                        <input type="hidden"
-                                               name="Items[@i].ItemId"
-                                               value="@p.Id" />
+                                                        <td>
+                                                            <div class="qty-control">
 
-                                    </tr>
-                                }
+                                                                <button type="button"
+                                                                class="qty-btn qty-minus"
+                                                                aria-label="Decrease quantity">
+                                                                    −
+                                                                </button>
 
-                            </tbody>
-                        </table>
-                    </div>
+                                                                <input type="text"
+                                                                inputmode="numeric"
+                                                                pattern="[0-9]*"
+                                                                autocomplete="off"
+                                                                class="form-control qty-input item-qty"
+                                                                name="Items[@i].Qty"
+                                                                value="@savedQty"
+                                                                aria-label="Quantity for @p.ItemName" />
 
-                    @if (products.Count == 0)
-                    {
-                        <div class="alert alert-warning m-3">
-                            No products available.
-                        </div>
-                    }
+                                                                <button type="button"
+                                                                class="qty-btn qty-plus"
+                                                                aria-label="Increase quantity">
+                                                                    +
+                                                                </button>
 
-                    <div class="p-2 text-end border-top">
-                        <button type="button"
-                                id="clearQuantities"
-                                class="btn btn-sm btn-outline-secondary">
-                            Clear Quantities
-                        </button>
-                    </div>
+                                                            </div>
+                                                        </td>
 
-                </section>
+                                                        <td class="item-amount">
+                                                            ₹0.00
+                                                        </td>
 
-                <!-- ORDER SUMMARY -->
-                <div class="order-footer">
+                                                        <input type="hidden"
+                                                        name="Items[@i].ItemId"
+                                                        value="@p.Id" />
 
-                    <div class="footer-summary">
+                                                    </tr>
+                                                }
 
-                        <div class="footer-stat">
-                            <small>Total Quantity</small>
-                            <strong id="totalQty">0</strong>
-                        </div>
+                                            </tbody>
+                                        </table>
+                                    </div>
 
-                        <div class="footer-stat">
-                            <small>Selected Products</small>
-                            <strong id="selectedCount">0</strong>
-                        </div>
+                                    @if (products.Count == 0)
+                                    {
+                                        <div class="alert alert-warning m-3">
+                                            No products available.
+                                        </div>
+                                    }
 
-                        <div class="footer-stat footer-total">
-                            <small>Grand Total</small>
-                            <strong>
-                                ₹<span id="totalAmount">0.00</span>
-                            </strong>
-                        </div>
+                                    <div class="p-2 text-end border-top">
+                                        <button type="button"
+                                        id="clearQuantities"
+                                        class="btn btn-sm btn-outline-secondary">
+                                            Clear Quantities
+                                        </button>
+                                    </div>
 
-                    </div>
+                                </section>
 
-                    <div class="footer-actions">
+                                <!-- ORDER SUMMARY -->
+                                <div class="order-footer">
 
-                        <button type="reset" class="btn-reset">
-                            Reset
-                        </button>
+                                    <div class="footer-summary">
 
-                        <button type="submit"
-                                id="placeOrderBtn"
-                                class="btn-submit"
-                                disabled>
-                            Place Order · ₹<span id="footerAmount">0.00</span>
-                        </button>
+                                        <div class="footer-stat">
+                                            <small>Total Quantity</small>
+                                            <strong id="totalQty">0</strong>
+                                        </div>
 
-                    </div>
+                                        <div class="footer-stat">
+                                            <small>Selected Products</small>
+                                            <strong id="selectedCount">0</strong>
+                                        </div>
 
-                </div>
+                                        <div class="footer-stat footer-total">
+                                            <small>Grand Total</small>
+                                            <strong>
+                                                ₹<span id="totalAmount">0.00</span>
+                                            </strong>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="footer-actions">
+
+                                        <button type="reset" class="btn-reset">
+                                            Reset
+                                        </button>
+
+                                     @*    <button type="submit"
+                                        id="placeOrderBtn"
+                                        class="btn-submit"
+                                        disabled>
+                                            Place Order · ₹<span id="footerAmount">0.00</span>
+                                        </button> *@
+                                        <button type="submit" class="btn btn-primary"> @(ViewBag.IsEdit == true ? "Update Order" : "Save Order")
+</button>
+
+                                    </div>
+
+                                </div>
 
             </form>
+                        </div>
+                        </div>
+                        </div>
 
-        </div>
-    </div>
-</div>
+                        @section Scripts {
 
-@section Scripts {
+                        <partial name="_ValidationScriptsPartial" />
 
-    <partial name="_ValidationScriptsPartial" />
+                        <script>
+                            (function () {
 
-    <script>
-        (function () {
+                            const form = document.getElementById('orderForm');
 
-            const form = document.getElementById('orderForm');
+                            const productList = document.getElementById('productList');
 
-            const productList = document.getElementById('productList');
+                            const productRows =
+                            Array.from(document.querySelectorAll('.product-row'));
 
-            const productRows =
-                Array.from(document.querySelectorAll('.product-row'));
+                            const totalQtyEl =
+                            document.getElementById('totalQty');
 
-            const totalQtyEl =
-                document.getElementById('totalQty');
+                            const totalAmountEl =
+                            document.getElementById('totalAmount');
 
-            const totalAmountEl =
-                document.getElementById('totalAmount');
+                            const footerAmountEl =
+                            document.getElementById('footerAmount');
 
-            const footerAmountEl =
-                document.getElementById('footerAmount');
+                            const selectedProductsEl =
+                            document.getElementById('selectedProducts');
 
-            const selectedProductsEl =
-                document.getElementById('selectedProducts');
+                            const selectedCountEl =
+                            document.getElementById('selectedCount');
 
-            const selectedCountEl =
-                document.getElementById('selectedCount');
+                            const submitBtn =
+                            document.getElementById('placeOrderBtn');
 
-            const submitBtn =
-                document.getElementById('placeOrderBtn');
+                            const customerEl =
+                            document.getElementById('CustomerId');
 
-            const customerEl =
-                document.getElementById('CustomerId');
+                            // INTEGER ONLY QUANTITY
+                            function getQuantity(input) {
 
-            // INTEGER ONLY QUANTITY
-            function getQuantity(input) {
+                            const digits = input.value.replace(/[^0-9]/g, '');
 
-                const digits = input.value.replace(/[^0-9]/g, '');
+                            if (input.value !== digits) {
+                            input.value = digits;
+                            }
 
-                if (input.value !== digits) {
-                    input.value = digits;
-                }
+                            const value = parseInt(digits, 10);
 
-                const value = parseInt(digits, 10);
+                            return Number.isFinite(value) ? value : 0;
+                            }
 
-                return Number.isFinite(value) ? value : 0;
-            }
+                            // CALCULATE TOTALS
+                            function recalculate() {
 
-            // CALCULATE TOTALS
-            function recalculate() {
+                            let totalQty = 0;
+                            let totalAmount = 0;
+                            let selected = 0;
 
-                let totalQty = 0;
-                let totalAmount = 0;
-                let selected = 0;
+                            productRows.forEach(function (row) {
 
-                productRows.forEach(function (row) {
+                            const qtyInput = row.querySelector('.item-qty');
 
-                    const qtyInput = row.querySelector('.item-qty');
+                            const qty = getQuantity(qtyInput);
 
-                    const qty = getQuantity(qtyInput);
+                            const rate = Number(row.dataset.rate) || 0;
 
-                    const rate = Number(row.dataset.rate) || 0;
+                            const amount = qty * rate;
 
-                    const amount = qty * rate;
+                            row.querySelector('.item-amount').textContent =
+                            '₹' + amount.toFixed(2);
 
-                    row.querySelector('.item-amount').textContent =
-                        '₹' + amount.toFixed(2);
+                            totalQty += qty;
+                            totalAmount += amount;
 
-                    totalQty += qty;
-                    totalAmount += amount;
+                            if (qty > 0) {
+                            selected++;
+                            }
+                            });
 
-                    if (qty > 0) {
-                        selected++;
-                    }
-                });
+                            totalQtyEl.textContent = totalQty.toString();
 
-                totalQtyEl.textContent = totalQty.toString();
+                            totalAmountEl.textContent = totalAmount.toFixed(2);
 
-                totalAmountEl.textContent = totalAmount.toFixed(2);
+                            footerAmountEl.textContent = totalAmount.toFixed(2);
 
-                footerAmountEl.textContent = totalAmount.toFixed(2);
+                            selectedProductsEl.textContent =
+                            selected + ' selected';
 
-                selectedProductsEl.textContent =
-                    selected + ' selected';
+                            selectedCountEl.textContent = selected;
 
-                selectedCountEl.textContent = selected;
+                            submitBtn.disabled = selected === 0;
+                            }
 
-                submitBtn.disabled = selected === 0;
-            }
+                            // MANUAL TYPING
+                            productList.addEventListener('input', function (event) {
 
-            // MANUAL TYPING
-            productList.addEventListener('input', function (event) {
+                            if (event.target.classList.contains('item-qty')) {
 
-                if (event.target.classList.contains('item-qty')) {
+                            getQuantity(event.target);
 
-                    getQuantity(event.target);
+                            recalculate();
+                            }
+                            });
 
-                    recalculate();
-                }
-            });
+                            // PLUS / MINUS BUTTONS
+                            productList.addEventListener('click', function (event) {
 
-            // PLUS / MINUS BUTTONS
-            productList.addEventListener('click', function (event) {
+                            const button = event.target.closest('.qty-btn');
 
-                const button = event.target.closest('.qty-btn');
+                            if (!button) return;
 
-                if (!button) return;
+                            const row = button.closest('.product-row');
 
-                const row = button.closest('.product-row');
+                            const qtyInput = row.querySelector('.item-qty');
 
-                const qtyInput = row.querySelector('.item-qty');
+                            let qty = getQuantity(qtyInput);
 
-                let qty = getQuantity(qtyInput);
+                            if (button.classList.contains('qty-plus')) {
+                            qty++;
+                            }
+                            else if (button.classList.contains('qty-minus')) {
+                            qty = Math.max(0, qty - 1);
+                            }
 
-                if (button.classList.contains('qty-plus')) {
-                    qty++;
-                }
-                else if (button.classList.contains('qty-minus')) {
-                    qty = Math.max(0, qty - 1);
-                }
+                            qtyInput.value = qty.toString();
 
-                qtyInput.value = qty.toString();
+                            recalculate();
+                            });
 
-                recalculate();
-            });
+                            // CLEAR QUANTITIES
+                            document.getElementById('clearQuantities')
+                            .addEventListener('click', function () {
 
-            // CLEAR QUANTITIES
-            document.getElementById('clearQuantities')
-                .addEventListener('click', function () {
+                            productRows.forEach(function (row) {
+                            row.querySelector('.item-qty').value = '0';
+                            });
 
-                    productRows.forEach(function (row) {
-                        row.querySelector('.item-qty').value = '0';
-                    });
+                            recalculate();
+                            });
 
-                    recalculate();
-                });
+                            // RESET FORM
+                            form.addEventListener('reset', function () {
 
-            // RESET FORM
-            form.addEventListener('reset', function () {
+                            setTimeout(function () {
+                            recalculate();
+                            }, 0);
+                            });
 
-                setTimeout(function () {
-                    recalculate();
-                }, 0);
-            });
+                            // FORM SUBMISSION
+                            form.addEventListener('submit', function (event) {
 
-            // FORM SUBMISSION
-            form.addEventListener('submit', function (event) {
+                            if (customerEl && !customerEl.value) {
 
-                if (customerEl && !customerEl.value) {
+                            event.preventDefault();
 
-                    event.preventDefault();
+                            customerEl.focus();
 
-                    customerEl.focus();
+                            alert('Please select a customer.');
 
-                    alert('Please select a customer.');
+                            return;
+                            }
 
-                    return;
-                }
+                            // Final integer validation
+                            productRows.forEach(function (row) {
 
-                // Final integer validation
-                productRows.forEach(function (row) {
+                            const input = row.querySelector('.item-qty');
 
-                    const input = row.querySelector('.item-qty');
+                            input.value = getQuantity(input).toString();
+                            });
 
-                    input.value = getQuantity(input).toString();
-                });
+                            const hasItems = productRows.some(function (row) {
 
-                const hasItems = productRows.some(function (row) {
+                            return getQuantity(
+                            row.querySelector('.item-qty')
+                            ) > 0;
+                            });
 
-                    return getQuantity(
-                        row.querySelector('.item-qty')
-                    ) > 0;
-                });
+                            if (!hasItems) {
 
-                if (!hasItems) {
+                            event.preventDefault();
 
-                    event.preventDefault();
+                            alert(
+                            'Please enter quantity for at least one product.'
+                            );
 
-                    alert(
-                        'Please enter quantity for at least one product.'
-                    );
+                            return;
+                            }
 
-                    return;
-                }
+                            if (!form.checkValidity()) {
 
-                if (!form.checkValidity()) {
+                            event.preventDefault();
 
-                    event.preventDefault();
+                            form.reportValidity();
+                            }
+                            });
 
-                    form.reportValidity();
-                }
-            });
+                            // INITIAL CALCULATION
+                            recalculate();
 
-            // INITIAL CALCULATION
-            recalculate();
-
-        })();
-    </script>
+                            })();
+                        </script>
 }
+            
