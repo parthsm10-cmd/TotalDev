@@ -67,7 +67,7 @@ namespace TotalDev.Controllers
             if (string.Equals(name.Trim(), "Dev", StringComparison.OrdinalIgnoreCase) && password == "2026")
             {
                 // set session user id to a special value
-                HttpContext.Session.SetString("UserId", "default-dev");
+                HttpContext.Session.SetInt32("UserId", 999);
                 // also store a display name for layout
                 HttpContext.Session.SetString("UserName", "Dev");
                 HttpContext.Session.SetString("UserRole", "Admin");
@@ -83,7 +83,7 @@ namespace TotalDev.Controllers
                 if (user != null)
                 {
                     // store user id in session
-                    HttpContext.Session.SetString("UserId", user.Id ?? string.Empty);
+                    HttpContext.Session.SetInt32("UserId", user.UserCode);
                     // store username for display in layout
                     HttpContext.Session.SetString("UserName", user.UserName ?? string.Empty);
                     HttpContext.Session.SetString("UserRole", "Admin");

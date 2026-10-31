@@ -9,7 +9,7 @@ public class User
 
   [Required(ErrorMessage = "User code is required")]
   [StringLength(50)]
-  public string UserCode { get; set; } = string.Empty;
+  public int UserCode { get; set; } = 0;
 
   [Required(ErrorMessage = "User name is required")]
   [StringLength(200)]

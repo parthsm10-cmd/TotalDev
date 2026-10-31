@@ -33,17 +33,11 @@ namespace TotalDev.Controllers
         {
             var userRole = HttpContext.Session.GetString("UserRole") ?? "";
 
-            var sessionUserId = HttpContext.Session.GetInt32("UserId");
+            int sessionUserId = HttpContext.Session.GetInt32("UserId") ?? 0;
 
-            bool isAdmin = string.Equals(
-                userRole,
-                "Admin",
-                StringComparison.OrdinalIgnoreCase);
+            bool isAdmin = string.Equals(userRole,"Admin",StringComparison.OrdinalIgnoreCase);
 
-            bool isCustomer = string.Equals(
-                userRole,
-                "Customer",
-                StringComparison.OrdinalIgnoreCase);
+            bool isCustomer = string.Equals(userRole,"Customer",StringComparison.OrdinalIgnoreCase);
 
             if (!isAdmin && !isCustomer)
             {
@@ -58,12 +52,12 @@ namespace TotalDev.Controllers
             // Customer login: automatically select own customer.
             if (isCustomer)
             {
-                if (!sessionUserId.HasValue)
+                if (sessionUserId <= 0)
                 {
-                    return RedirectToAction("Login", "Account");
+                    return RedirectToAction("Login", "Customer");
                 }
 
-                model.CustomerId = sessionUserId.Value;
+                model.CustomerId = sessionUserId;
             }
 
             await LoadFormData();
@@ -83,11 +77,11 @@ namespace TotalDev.Controllers
 
                 int sessionUserId = HttpContext.Session.GetInt32("UserId") ?? 0;
 
-                bool isAdmin = string.Equals(userRole,"Admin",StringComparison.OrdinalIgnoreCase);
+                bool isAdmin = string.Equals(userRole, "Admin", StringComparison.OrdinalIgnoreCase);
 
-                bool isCustomer = string.Equals(userRole,"Customer",StringComparison.OrdinalIgnoreCase);
+                bool isCustomer = string.Equals(userRole, "Customer", StringComparison.OrdinalIgnoreCase);
 
-              
+
                 if (!isAdmin && !isCustomer)
                 {
                     return Unauthorized();
@@ -140,7 +134,7 @@ namespace TotalDev.Controllers
                 if (selectedItems == null ||
                     selectedItems.Count == 0)
                 {
-                    ModelState.AddModelError(string.Empty,"Please enter quantity for at least one item.");
+                    ModelState.AddModelError(string.Empty, "Please enter quantity for at least one item.");
                 }
 
                 if (!ModelState.IsValid)
@@ -150,9 +144,9 @@ namespace TotalDev.Controllers
                 }
 
                 // 7. Load products from database.
-                var products =await _productService.GetAllAsync();
+                var products = await _productService.GetAllAsync();
 
-                var productLookup = products.ToDictionary(p => p.Id.ToString(),p => p);
+                var productLookup = products.ToDictionary(p => p.Id.ToString(), p => p);
 
                 decimal totalQty = 0;
                 decimal totalAmount = 0;
@@ -163,9 +157,9 @@ namespace TotalDev.Controllers
                 foreach (var item in selectedItems!)
                 {
                     if (string.IsNullOrWhiteSpace(item.ItemId) ||
-                        !productLookup.TryGetValue(item.ItemId,out var product))
+                        !productLookup.TryGetValue(item.ItemId, out var product))
                     {
-                        ModelState.AddModelError(string.Empty,"One or more selected products are invalid.");
+                        ModelState.AddModelError(string.Empty, "One or more selected products are invalid.");
                         continue;
                     }
 
@@ -217,13 +211,19 @@ namespace TotalDev.Controllers
                 };
 
                 // 11. Save order header and details.
-                await _orderService.CreateOrderAsync(header,detailList);
+                await _orderService.CreateOrderAsync(header, detailList);
 
                 TempData["Success"] =
                     "Order created successfully.";
 
-                //return RedirectToAction(nameof(Index));
-                return RedirectToAction("Index", "Home");
+                if (isAdmin)
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    return RedirectToAction("Index", "Customer");
+                }
             }
             catch (Exception ex)
             {
@@ -452,7 +452,14 @@ namespace TotalDev.Controllers
                     detailList);
 
                 TempData["Success"] = "Order updated successfully.";
-                return RedirectToAction("Index", "Home");
+                if (isAdmin)
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    return RedirectToAction("Index", "Customer");
+                }
             }
             catch (Exception ex)
             {

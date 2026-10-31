@@ -76,7 +76,7 @@ namespace TotalDev.Controllers
                 var isNew = string.IsNullOrWhiteSpace(user.Id);
 
                 if (await _service.UserCodeExistsAsync(
-                    user.UserCode.Trim(), user.Id))
+                    user.UserCode, user.Id))
                 {
                     ModelState.AddModelError(
                         nameof(user.UserCode),
