@@ -8,7 +8,7 @@ namespace TotalDev.Services;
 public class Order_HDRService(AppDbContext db)
 {
     // CREATE ORDER
-    public async Task CreateOrderAsync(Order_HDR header,List<Order_Details> details)
+    public async Task CreateOrderAsync(Order_HDR header, List<Order_Details> details)
     {
         var strategy = db.Database.CreateExecutionStrategy();
 
@@ -62,7 +62,7 @@ public class Order_HDRService(AppDbContext db)
     }
 
     // GET ORDER DETAILS
-    public async Task<List<Order_Details>> GetOrderDetailsAsync(int ordNo,int Cust_Id)
+    public async Task<List<Order_Details>> GetOrderDetailsAsync(int ordNo, int Cust_Id)
     {
         return await db.OrderDetails
             .AsNoTracking()
@@ -72,7 +72,7 @@ public class Order_HDRService(AppDbContext db)
     }
 
     // UPDATE COMPLETE ORDER
-    public async Task UpdateOrderAsync(int ordNo,int customerId,Order_HDR updatedHeader,List<Order_Details> updatedDetails)
+    public async Task UpdateOrderAsync(int ordNo, int customerId, Order_HDR updatedHeader, List<Order_Details> updatedDetails)
     {
         var strategy = db.Database.CreateExecutionStrategy();
 
@@ -115,10 +115,11 @@ public class Order_HDRService(AppDbContext db)
                 throw;
             }
         });
+    }
 
-        // Report Download Method
-        public async Task<List<Order_HDR>> GetOrdersByDateRangeAsync(DateTime fromDate,DateTime toDate)
-       {
+    // Report Download Method
+    public async Task<List<Order_HDR>> GetOrdersByDateRangeAsync(DateTime fromDate, DateTime toDate)
+    {
 
         DateTime startDate = fromDate.Date;
         DateTime endDate = toDate.Date.AddDays(1);
@@ -135,4 +136,5 @@ public class Order_HDRService(AppDbContext db)
             .ToListAsync();
     }
 }
-}
+
+
