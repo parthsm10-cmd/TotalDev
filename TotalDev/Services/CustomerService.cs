@@ -52,4 +52,21 @@ public class CustomerService(AppDbContext db)
         var max = await db.Customers.Select(c => (int?)c.Id).MaxAsync() ?? 0;
         return max + 1;
     }
+
+    public List<Order_HDR> GetCustomerOrders(
+        int customerId,
+        DateTime selectedDate)
+    {
+        DateTime startDate = selectedDate.Date;
+        DateTime endDate = startDate.AddDays(1);
+
+        return db.Orders
+            .Where(x =>
+                x.CustomerId == customerId &&
+                x.Ord_Date >= startDate &&
+                x.Ord_Date < endDate)
+            .OrderByDescending(x => x.Ord_No)
+            .ToList();
+    }
+
 }

@@ -162,19 +162,59 @@ namespace TotalDev.Controllers
             }
         }
         [HttpGet]
-        public IActionResult CustomerHome()
+        //public IActionResult CustomerHome()
+        //{
+        //    var userId = HttpContext.Session.GetString("UserId");
+        //    var userRole = HttpContext.Session.GetString("UserRole");
+
+        //    if (string.IsNullOrWhiteSpace(userId) ||
+        //        !string.Equals(userRole, "Customer", StringComparison.OrdinalIgnoreCase))
+        //    {
+        //        return RedirectToAction(nameof(Login));
+        //    }
+
+        //    return View();
+        //}
+
+        [HttpGet]
+        public IActionResult CustomerHome(DateTime? selectedDate)
         {
-            var userId = HttpContext.Session.GetString("UserId");
-            var userRole = HttpContext.Session.GetString("UserRole");
-
-            if (string.IsNullOrWhiteSpace(userId) ||
-                !string.Equals(userRole, "Customer", StringComparison.OrdinalIgnoreCase))
+            try
             {
-                return RedirectToAction(nameof(Login));
-            }
+                var userId = HttpContext.Session.GetInt32("UserId");
+                var userRole = HttpContext.Session.GetString("UserRole");
 
-            return View();
+                if (!userId.HasValue || userId.Value <= 0 || !string.Equals(userRole, "Customer", StringComparison.OrdinalIgnoreCase))
+                {
+                    return RedirectToAction(nameof(Login));
+                }
+                // Customer ID
+                int customerId = userId.Value;
+
+                DateTime date = (selectedDate ?? DateTime.Today).Date;
+                 
+
+                var orders = _service.GetCustomerOrders(customerId, date);
+
+                ViewBag.CustomerName = HttpContext.Session.GetString("UserName");
+
+                ViewBag.SelectedDate = date;
+
+                return View(orders);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading Customer Home");
+
+                ViewBag.CustomerName =
+                    HttpContext.Session.GetString("UserName");
+
+                ViewBag.SelectedDate = selectedDate ?? DateTime.Today;
+
+                return View(new List<Order_HDR>());
+            }
         }
+
         [HttpGet]
         public IActionResult CreateOrder()
         {
