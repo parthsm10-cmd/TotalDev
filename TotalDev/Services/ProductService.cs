@@ -9,6 +9,8 @@ public class ProductService(AppDbContext db)
     public Task<List<Product>> GetAllAsync() =>
         db.Products.AsNoTracking().OrderBy(p => p.ItemCode).ToListAsync();
 
+    public Task<int> GetCountAsync() => db.Products.CountAsync();
+
     public Task<Product?> GetByIdAsync(int id) =>
         db.Products.AsNoTracking().FirstOrDefaultAsync(p => p.ItemCode == id);
 

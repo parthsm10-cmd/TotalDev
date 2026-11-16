@@ -9,6 +9,8 @@ public class UserService(AppDbContext db)
     public Task<List<User>> GetAllAsync() =>
         db.Users.AsNoTracking().OrderBy(u => u.UserCode).ToListAsync();
 
+    public Task<int> GetCountAsync() => db.Users.CountAsync();
+
     public Task<User?> GetByIdAsync(string id) =>
         db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == id);
 

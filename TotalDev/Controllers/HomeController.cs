@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Globalization;
 using TotalDev.Models;
 using TotalDev.Services;
 
@@ -9,26 +10,73 @@ namespace TotalDev.Controllers
     {
         private readonly Order_HDRService _orderService;
         private readonly UserService _userService;
+        private readonly CustomerService _customerService;
+        private readonly ProductService _productService;
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(UserService userService, Order_HDRService orderService, ILogger<HomeController> logger)
+        public HomeController(
+            UserService userService,
+            Order_HDRService orderService,
+            CustomerService customerService,
+            ProductService productService,
+            ILogger<HomeController> logger)
         {
             _userService = userService;
             _orderService = orderService;
+            _customerService = customerService;
+            _productService = productService;
             _logger = logger;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? date)
         {
-            // Show recent orders directly on admin home page
             var role = HttpContext.Session.GetString("UserRole") ?? string.Empty;
-            if (string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
             {
-                var orders = await _orderService.GetAllAsync();
-                return View(orders);
+                if (string.Equals(role, "Customer", StringComparison.OrdinalIgnoreCase))
+                    return RedirectToAction("CustomerHome", "Customer");
+
+                return RedirectToAction(nameof(Login));
             }
 
-            return View();
+            var reportDate = DateTime.Today;
+            if (!string.IsNullOrWhiteSpace(date))
+            {
+                if (!DateTime.TryParseExact(
+                    date.Trim(),
+                    "dd-MM-yyyy",
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out reportDate))
+                {
+                    return BadRequest("Date must use the dd-MM-yyyy format.");
+                }
+
+                reportDate = reportDate.Date;
+            }
+
+            try
+            {
+                var orders = await _orderService.GetOrdersByDateRangeAsync(reportDate, reportDate);
+                var model = new AdminDashboardViewModel
+                {
+                    ReportDate = reportDate,
+                    CustomerCount = await _customerService.GetCountAsync(),
+                    ProductCount = await _productService.GetCountAsync(),
+                    UserCount = await _userService.GetCountAsync(),
+                    OrderCount = orders.Count,
+                    TotalQuantity = orders.Sum(order => order.TotalQty),
+                    TotalSales = orders.Sum(order => order.TotalAmount),
+                    Orders = orders
+                };
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Loading the admin dashboard failed.");
+                return Problem("Dashboard load failed.");
+            }
         }
 
         [HttpGet]

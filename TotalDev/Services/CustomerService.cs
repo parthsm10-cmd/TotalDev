@@ -9,6 +9,8 @@ public class CustomerService(AppDbContext db)
     public Task<List<Customer>> GetAllAsync() =>
         db.Customers.AsNoTracking().OrderBy(c => c.CustName).ToListAsync();
 
+    public Task<int> GetCountAsync() => db.Customers.CountAsync();
+
     public Task<Customer?> GetByIdAsync(int id) =>
         db.Customers.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
 

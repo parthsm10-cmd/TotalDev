@@ -1,51 +1,178 @@
-﻿@model List<TotalDev.Models.Order_HDR>
+﻿@model AdminDashboardViewModel
 @{
-    ViewData["Title"] = "Home";
+    ViewData["Title"] = "Admin Dashboard";
 }
 
- @if (Model != null && Model.Count > 0)
-{
-    <a asp-controller="Order_HDR"
-   asp-action="OrderShow"
-   class="btn btn-primary">
+@section Styles {
+    <style>
+        .dashboard-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem; }
+        .dashboard-heading h1 { margin: 0 0 .4rem; color: #14532d; font-size: 1.8rem; font-weight: 700; }
+        .dashboard-heading p { margin: 0; color: #68736b; }
+        .dashboard-filter, .dashboard-panel { padding: 1.25rem; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 3px 12px rgba(30, 70, 42, .035); }
+        .dashboard-filter { margin-bottom: 1.25rem; }
+        .dashboard-filter .form-label { color: #374151; font-size: .9rem; font-weight: 600; }
+        .dashboard-stat { height: 100%; padding: 1.25rem; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 3px 12px rgba(30, 70, 42, .035); }
+        .dashboard-stat-label { margin-bottom: .65rem; color: #68736b; font-size: .85rem; font-weight: 600; }
+        .dashboard-stat-value { color: #14532d; font-size: 1.65rem; font-weight: 700; line-height: 1.2; }
+        .dashboard-stat-note { margin-top: .35rem; color: #87918a; font-size: .78rem; }
+        .dashboard-panel { margin-top: 1.25rem; }
+        .dashboard-panel h2 { margin: 0; color: #14532d; font-size: 1.15rem; font-weight: 700; }
+        .dashboard-table { margin-bottom: 0; }
+        .dashboard-table th { color: #5b665e; font-size: .82rem; font-weight: 700; white-space: nowrap; }
+        .dashboard-table td { vertical-align: middle; }
+        @@media (max-width: 575.98px) {
+            .dashboard-heading { flex-direction: column; }
+            .dashboard-heading .btn { width: 100%; }
+        }
+    </style>
+}
 
-    <i class="bi bi-file-earmark-pdf"></i>
-    Order Show / Download PDF
+<div class="dashboard">
+    <div class="dashboard-heading">
+        <div>
+            <h1>Admin Dashboard</h1>
+            <p>Daily business overview for @Model.ReportDate.ToString("dd-MM-yyyy")</p>
+        </div>
+        <a asp-controller="Order_HDR" asp-action="OrderShow" class="btn btn-outline-success">
+            Download order report
+        </a>
+    </div>
 
-</a>
-    <div class="table-shell mt-3">
+    <form asp-controller="Home" asp-action="Index" method="get" class="dashboard-filter">
+        <div class="row g-3 align-items-end">
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <label for="reportDate" class="form-label">Report date</label>
+                <input type="text" id="reportDate" name="date"
+                       value="@Model.ReportDate.ToString("dd-MM-yyyy")"
+                       class="form-control" placeholder="dd-MM-yyyy"
+                       inputmode="numeric" autocomplete="off" />
+            </div>
+            <div class="col-6 col-sm-3 col-md-2">
+                <button type="submit" class="btn btn-success w-100">View report</button>
+            </div>
+            <div class="col-6 col-sm-3 col-md-2">
+                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary w-100">Today</a>
+            </div>
+            <div class="col-12 col-md text-md-end text-muted small">
+                All order totals below use the selected date.
+            </div>
+        </div>
+    </form>
+
+    <div class="row g-3">
+        <div class="col-6 col-lg-4 col-xl-2">
+            <div class="dashboard-stat">
+                <div class="dashboard-stat-label">Orders</div>
+                <div class="dashboard-stat-value">@Model.OrderCount</div>
+                <div class="dashboard-stat-note">On selected date</div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-4 col-xl-2">
+            <div class="dashboard-stat">
+                <div class="dashboard-stat-label">Sales</div>
+                <div class="dashboard-stat-value">₹@Model.TotalSales.ToString("N2")</div>
+                <div class="dashboard-stat-note">On selected date</div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-4 col-xl-2">
+            <div class="dashboard-stat">
+                <div class="dashboard-stat-label">Total quantity</div>
+                <div class="dashboard-stat-value">@Model.TotalQuantity.ToString("N2")</div>
+                <div class="dashboard-stat-note">On selected date</div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-4 col-xl-2">
+            <div class="dashboard-stat">
+                <div class="dashboard-stat-label">Customers</div>
+                <div class="dashboard-stat-value">@Model.CustomerCount</div>
+                <div class="dashboard-stat-note">Registered total</div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-4 col-xl-2">
+            <div class="dashboard-stat">
+                <div class="dashboard-stat-label">Products</div>
+                <div class="dashboard-stat-value">@Model.ProductCount</div>
+                <div class="dashboard-stat-note">Catalog total</div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-4 col-xl-2">
+            <div class="dashboard-stat">
+                <div class="dashboard-stat-label">Users</div>
+                <div class="dashboard-stat-value">@Model.UserCount</div>
+                <div class="dashboard-stat-note">Registered total</div>
+            </div>
+        </div>
+    </div>
+
+    <section class="dashboard-panel" aria-labelledby="dailyOrdersHeading">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-3">
+            <h2 id="dailyOrdersHeading">Orders for @Model.ReportDate.ToString("dd-MM-yyyy")</h2>
+            <span class="text-muted small">@Model.OrderCount order(s)</span>
+        </div>
         <div class="table-responsive">
-            <table class="table product-table">
-                <thead>
+            <table class="table table-hover align-middle dashboard-table">
+                <thead class="table-light">
                     <tr>
-                        <th>Order Date</th>
+                        <th>Order No.</th>
+                        <th>Date</th>
                         <th>Customer</th>
-                        <th>Total Qty</th>
-                        <th>Total Amount</th>
-                        <th>Action</th>
+                        <th class="text-end">Quantity</th>
+                        <th class="text-end">Amount</th>
+                        <th class="text-end">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var o in Model.Take(10))
+                    @if (Model.Orders.Count > 0)
+                    {
+                        foreach (var order in Model.Orders)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@order.Ord_No</td>
+                                <td>@order.Ord_Date.ToString("dd-MM-yyyy")</td>
+                                <td>@(order.Customer?.CustName ?? "-")</td>
+                                <td class="text-end">@order.TotalQty.ToString("N2")</td>
+                                <td class="text-end fw-semibold">₹@order.TotalAmount.ToString("N2")</td>
+                                <td class="text-end">
+                                    <a asp-controller="Order_HDR" asp-action="Edit"
+                                       asp-route-ordNo="@order.Ord_No" asp-route-customerId="@order.CustomerId"
+                                       class="btn btn-outline-success btn-sm">View</a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
                     {
                         <tr>
-                            <td>@o.Ord_Date.ToString("dd-MM-yyyy")</td>
-                            <td>@(o.Customer?.CustName ?? "-")</td>
-                            <td>@o.TotalQty</td>
-                            <td>₹@o.TotalAmount.ToString("0.00")</td>
-                            <td>
-                                <a asp-controller="Order_HDR" asp-action="Edit" asp-route-ordNo="@o.Ord_No"
-                                   asp-route-customerId="@o.CustomerId" class="btn btn-warning btn-sm">Edit</a>
+                            <td colspan="6" class="py-5 text-center text-muted">
+                                No orders found for @Model.ReportDate.ToString("dd-MM-yyyy").
                             </td>
                         </tr>
                     }
                 </tbody>
+                @if (Model.Orders.Count > 0)
+                {
+                    <tfoot class="table-light">
+                        <tr>
+                            <th colspan="3" class="text-end">Daily total</th>
+                            <th class="text-end">@Model.TotalQuantity.ToString("N2")</th>
+                            <th class="text-end">₹@Model.TotalSales.ToString("N2")</th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                }
             </table>
         </div>
-    </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const dateInput = document.getElementById("reportDate");
+            if (dateInput && window.flatpickr) {
+                flatpickr(dateInput, { dateFormat: "d-m-Y", allowInput: true });
+            }
+        });
+    </script>
 }
-else
-{
-    <div class="mt-3 text-muted">No recent orders.</div>
-}
- 
+
