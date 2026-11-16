@@ -7,11 +7,14 @@ public class User
   [Key]
   public string? Id { get; set; }
 
-  [Required(ErrorMessage = "User code is required")]
-  [StringLength(50)]
-  public int UserCode { get; set; } = 0;
+    //[Required(ErrorMessage = "User code is required")]
+    //[StringLength(50)]
+    //public int UserCode { get; set; } = 0;
+    [Required(ErrorMessage = "User code is required")]
+    [Range(1, int.MaxValue, ErrorMessage = "User code must be greater than zero")]
+    public int UserCode { get; set; } = 0;
 
-  [Required(ErrorMessage = "User name is required")]
+    [Required(ErrorMessage = "User name is required")]
   [StringLength(200)]
   public string UserName { get; set; } = string.Empty;
 
