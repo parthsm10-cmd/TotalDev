@@ -92,9 +92,7 @@ namespace TotalDev.Controllers
                 {
                     if (sessionUserId <= 0)
                     {
-                        ModelState.AddModelError(
-                            string.Empty,
-                            "Session expired. Please login again.");
+                        ModelState.AddModelError( string.Empty, "Session expired. Please login again.");
                     }
                     else
                     {
@@ -104,8 +102,7 @@ namespace TotalDev.Controllers
                 }
 
                 // 4. Admin must select a customer.
-                if (isAdmin &&
-                    model.CustomerId == 0)
+                if (isAdmin && model.CustomerId == 0)
                 {
                     ModelState.AddModelError(
                         nameof(model.CustomerId),
@@ -115,8 +112,7 @@ namespace TotalDev.Controllers
                 // 5. Validate that the customer exists.
                 if (model.CustomerId != 0)
                 {
-                    var customers =
-                        await _customerService.GetAllAsync();
+                    var customers = await _customerService.GetAllAsync();
 
                     bool customerExists = customers.Any(c => c.Id == model.CustomerId);
 
@@ -222,7 +218,7 @@ namespace TotalDev.Controllers
                 }
                 else
                 {
-                    return RedirectToAction("Index", "Customer");
+                    return RedirectToAction("Index", "Home");
                 }
             }
             catch (Exception ex)
