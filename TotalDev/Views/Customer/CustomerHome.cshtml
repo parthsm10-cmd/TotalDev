@@ -69,7 +69,7 @@
     </div>
 
     <!-- Create Order -->
-    <div class="row g-3 mt-3">
+    @* <div class="row g-3 mt-3">
 
         <div class="col-md-4">
             <div class="card border-0 shadow-sm h-100">
@@ -88,18 +88,13 @@
                         Select your dairy products and place a new order.
                     </p>
 
-                    <a asp-controller="Order_HDR"
-                       asp-action="Index"
-                       class="btn btn-success">
-                        <i class="bi bi-plus-circle me-1"></i>
-                        Create Order
-                    </a>
+                    
 
                 </div>
             </div>
         </div>
 
-    </div>
+    </div> *@
 
     <!-- Order Summary -->
     <div class="row g-3 mt-2">
@@ -141,7 +136,10 @@
             <small class="text-muted">
                 View your orders by date.
             </small>
-
+            <a asp-controller="Order_HDR" asp-action="Index" class="btn btn-success">
+                <i class="bi bi-plus-circle me-1"></i>
+                Create Order
+            </a>
         </div>
 
         <div class="card-body p-4">

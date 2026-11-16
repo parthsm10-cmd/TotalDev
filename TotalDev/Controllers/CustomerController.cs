@@ -206,8 +206,7 @@ namespace TotalDev.Controllers
             {
                 _logger.LogError(ex, "Error loading Customer Home");
 
-                ViewBag.CustomerName =
-                    HttpContext.Session.GetString("UserName");
+                ViewBag.CustomerName = HttpContext.Session.GetString("UserName");
 
                 ViewBag.SelectedDate = selectedDate ?? DateTime.Today;
 
@@ -221,8 +220,7 @@ namespace TotalDev.Controllers
             var userId = HttpContext.Session.GetString("UserId");
             var userRole = HttpContext.Session.GetString("UserRole");
 
-            if (string.IsNullOrWhiteSpace(userId) ||
-                !string.Equals(userRole, "Customer", StringComparison.OrdinalIgnoreCase))
+            if (string.IsNullOrWhiteSpace(userId) || !string.Equals(userRole, "Customer", StringComparison.OrdinalIgnoreCase))
             {
                 return RedirectToAction(nameof(Login));
             }

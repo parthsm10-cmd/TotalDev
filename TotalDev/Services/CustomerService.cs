@@ -53,9 +53,7 @@ public class CustomerService(AppDbContext db)
         return max + 1;
     }
 
-    public List<Order_HDR> GetCustomerOrders(
-        int customerId,
-        DateTime selectedDate)
+    public List<Order_HDR> GetCustomerOrders(int customerId,DateTime selectedDate)
     {
         DateTime startDate = selectedDate.Date;
         DateTime endDate = startDate.AddDays(1);
