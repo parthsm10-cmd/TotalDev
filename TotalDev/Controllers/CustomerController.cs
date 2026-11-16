@@ -2,6 +2,7 @@
 using System.Linq;
 using TotalDev.Models;
 using TotalDev.Services;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TotalDev.Controllers
 {
@@ -177,7 +178,7 @@ namespace TotalDev.Controllers
         //}
 
         [HttpGet]
-        public IActionResult CustomerHome(DateTime? selectedDate)
+        public IActionResult CustomerHome(string? selectedDate)
         {
             try
             {
@@ -191,7 +192,17 @@ namespace TotalDev.Controllers
                 // Customer ID
                 int customerId = userId.Value;
 
-                DateTime date = (selectedDate ?? DateTime.Today).Date;
+                DateTime date = DateTime.Today;
+                if (!string.IsNullOrEmpty(selectedDate))
+                {
+                    DateTime.TryParseExact(
+                        selectedDate,
+                        "dd-MM-yyyy",
+                        System.Globalization.CultureInfo.InvariantCulture,
+                        System.Globalization.DateTimeStyles.None,
+                        out date);
+                }
+                //DateTime date = (selectedDate ?? DateTime.Today).Date;
                  
 
                 var orders = _service.GetCustomerOrders(customerId, date);
@@ -208,7 +219,7 @@ namespace TotalDev.Controllers
 
                 ViewBag.CustomerName = HttpContext.Session.GetString("UserName");
 
-                ViewBag.SelectedDate = selectedDate ?? DateTime.Today;
+                ViewBag.SelectedDate =  DateTime.Today;
 
                 return View(new List<Order_HDR>());
             }

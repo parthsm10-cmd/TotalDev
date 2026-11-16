@@ -157,10 +157,16 @@
                             Select Order Date
                         </label>
 
-                        <input type="date"
+                        @* <input type="date"
                                name="selectedDate"
                                value="@selectedDate.ToString("yyyy-MM-dd")"
-                               class="form-control" />
+                               class="form-control" /> *@
+                        <input type="text"
+                               id="selectedDate"
+                               name="selectedDate"
+                               value="@selectedDate.ToString("dd-MM-yyyy")"
+                               class="form-control"
+                               placeholder="dd-MM-yyyy" />
 
                     </div>
 
@@ -298,3 +304,12 @@
     </div>
 
 </div>
+@section Scripts {
+    
+    <script>
+        flatpickr("#selectedDate", {
+            dateFormat: "d-m-Y",
+            allowInput: true
+        });
+    </script>
+}
