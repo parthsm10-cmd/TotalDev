@@ -44,21 +44,21 @@ namespace TotalDev.Controllers
                 return Unauthorized();
             }
 
-            // Customer order timing restriction
-            if (isCustomer)
-            {
-                TimeSpan currentTime = DateTime.Now.TimeOfDay;
+            //// Customer order timing restriction
+            //if (isCustomer)
+            //{
+            //    TimeSpan currentTime = DateTime.Now.TimeOfDay;
 
-                TimeSpan startTime = new TimeSpan(17, 0, 0);  // 5:00 PM
-                TimeSpan endTime = new TimeSpan(18, 45, 0);   // 6:45 PM
+            //    TimeSpan startTime = new TimeSpan(17, 0, 0);  // 5:00 PM
+            //    TimeSpan endTime = new TimeSpan(18, 45, 0);   // 6:45 PM
 
-                if (currentTime < startTime || currentTime > endTime)
-                {
-                    TempData["Warning"] = "Order placement is available only between 5:00 PM and 6:45 PM. Please visit again during the allowed time to place your order.";
+            //    if (currentTime < startTime || currentTime > endTime)
+            //    {
+            //        TempData["Warning"] = "Order placement is available only between 5:00 PM and 6:45 PM. Please visit again during the allowed time to place your order.";
 
-                    return RedirectToAction("Index", "Home");
-                }
-            }
+            //        return RedirectToAction("Index", "Home");
+            //    }
+            //}
 
             var model = new CreateOrderViewModel
             {
