@@ -69,4 +69,30 @@ public class CustomerService(AppDbContext db)
             .ToList();
     }
 
+    public async Task<int> GetPendingOrderCountAsync(DateTime selectedDate)
+    {
+        DateTime startDate = selectedDate.Date;
+        DateTime endDate = startDate.AddDays(1);
+
+        return await db.Customers
+            .Where(c => !db.Orders.Any(o =>
+                o.CustomerId == c.Id &&
+                o.Ord_Date >= startDate &&
+                o.Ord_Date < endDate))
+            .CountAsync();
+    }
+
+    public async Task<List<Customer>> GetPendingCustomersAsync(DateTime selectedDate)
+    {
+        DateTime startDate = selectedDate.Date;
+        DateTime endDate = startDate.AddDays(1);
+
+        return await db.Customers
+            .Where(c => !db.Orders.Any(o =>
+                o.CustomerId == c.Id &&
+                o.Ord_Date >= startDate &&
+                o.Ord_Date < endDate))
+            .ToListAsync();
+    }
+
 }

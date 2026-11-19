@@ -5,24 +5,107 @@
 
 @section Styles {
     <style>
-        .dashboard-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem; }
-        .dashboard-heading h1 { margin: 0 0 .4rem; color: #14532d; font-size: 1.8rem; font-weight: 700; }
-        .dashboard-heading p { margin: 0; color: #68736b; }
-        .dashboard-filter, .dashboard-panel { padding: 1.25rem; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 3px 12px rgba(30, 70, 42, .035); }
-        .dashboard-filter { margin-bottom: 1.25rem; }
-        .dashboard-filter .form-label { color: #374151; font-size: .9rem; font-weight: 600; }
-        .dashboard-stat { height: 100%; padding: 1.25rem; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; box-shadow: 0 3px 12px rgba(30, 70, 42, .035); }
-        .dashboard-stat-label { margin-bottom: .65rem; color: #68736b; font-size: .85rem; font-weight: 600; }
-        .dashboard-stat-value { color: #14532d; font-size: 1.65rem; font-weight: 700; line-height: 1.2; }
-        .dashboard-stat-note { margin-top: .35rem; color: #87918a; font-size: .78rem; }
-        .dashboard-panel { margin-top: 1.25rem; }
-        .dashboard-panel h2 { margin: 0; color: #14532d; font-size: 1.15rem; font-weight: 700; }
-        .dashboard-table { margin-bottom: 0; }
-        .dashboard-table th { color: #5b665e; font-size: .82rem; font-weight: 700; white-space: nowrap; }
-        .dashboard-table td { vertical-align: middle; }
+        .dashboard-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+            .dashboard-heading h1 {
+                margin: 0 0 .4rem;
+                color: #14532d;
+                font-size: 1.8rem;
+                font-weight: 700;
+            }
+
+            .dashboard-heading p {
+                margin: 0;
+                color: #68736b;
+            }
+
+        .dashboard-filter, .dashboard-panel {
+            padding: 1.25rem;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(30, 70, 42, .035);
+        }
+
+        .dashboard-filter {
+            margin-bottom: 1.25rem;
+        }
+
+            .dashboard-filter .form-label {
+                color: #374151;
+                font-size: .9rem;
+                font-weight: 600;
+            }
+
+        .dashboard-stat {
+            height: 100%;
+            padding: 1.25rem;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(30, 70, 42, .035);
+        }
+
+        .dashboard-stat-label {
+            margin-bottom: .65rem;
+            color: #68736b;
+            font-size: .85rem;
+            font-weight: 600;
+        }
+
+        .dashboard-stat-value {
+            color: #14532d;
+            font-size: 1.65rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .dashboard-stat-note {
+            margin-top: .35rem;
+            color: #87918a;
+            font-size: .78rem;
+        }
+
+        .dashboard-panel {
+            margin-top: 1.25rem;
+        }
+
+            .dashboard-panel h2 {
+                margin: 0;
+                color: #14532d;
+                font-size: 1.15rem;
+                font-weight: 700;
+            }
+
+        .dashboard-table {
+            margin-bottom: 0;
+        }
+
+            .dashboard-table th {
+                color: #5b665e;
+                font-size: .82rem;
+                font-weight: 700;
+                white-space: nowrap;
+            }
+
+            .dashboard-table td {
+                vertical-align: middle;
+            }
+
         @@media (max-width: 575.98px) {
-            .dashboard-heading { flex-direction: column; }
-            .dashboard-heading .btn { width: 100%; }
+            .dashboard-heading {
+                flex-direction: column;
+            }
+
+                .dashboard-heading .btn {
+                    width: 100%;
+                }
         }
     </style>
 }
@@ -67,6 +150,32 @@
                 <div class="dashboard-stat-note">On selected date</div>
             </div>
         </div>
+        @* <div class="col-6 col-lg-4 col-xl-2">
+            <div class="dashboard-stat">
+                <div class="dashboard-stat-label">Pending Order</div>
+                <div class="dashboard-stat-value">@Model.PendingOrder.ToString("N2")</div>
+                <div class="dashboard-stat-note">On selected date</div>
+            </div>
+        </div> *@
+
+        <div class="col-6 col-lg-4 col-xl-2">
+            <a asp-controller="Home"
+               asp-action="PendingCustomers"
+               asp-route-selectedDate="@Model.ReportDate.ToString("yyyy-MM-dd")"
+               style="text-decoration:none; color:inherit;">
+
+                <div class="dashboard-stat" style="cursor:pointer;">
+                    <div class="dashboard-stat-label">Pending Order</div>
+
+                    <div class="dashboard-stat-value">
+                        @Model.PendingOrder.ToString("N0")
+                    </div>
+
+                    <div class="dashboard-stat-note">On selected date</div>
+                </div>
+            </a>
+        </div>
+
         <div class="col-6 col-lg-4 col-xl-2">
             <div class="dashboard-stat">
                 <div class="dashboard-stat-label">Sales</div>
@@ -74,7 +183,8 @@
                 <div class="dashboard-stat-note">On selected date</div>
             </div>
         </div>
-        <div class="col-6 col-lg-4 col-xl-2">
+
+        @*  <div class="col-6 col-lg-4 col-xl-2">
             <div class="dashboard-stat">
                 <div class="dashboard-stat-label">Total quantity</div>
                 <div class="dashboard-stat-value">@Model.TotalQuantity.ToString("N2")</div>
@@ -101,7 +211,7 @@
                 <div class="dashboard-stat-value">@Model.UserCount</div>
                 <div class="dashboard-stat-note">Registered total</div>
             </div>
-        </div>
+        </div> *@
     </div>
 
     <section class="dashboard-panel" aria-labelledby="dailyOrdersHeading">
@@ -174,5 +284,7 @@
             }
         });
     </script>
+
+
 }
 

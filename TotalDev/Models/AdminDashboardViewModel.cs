@@ -9,5 +9,7 @@ public sealed class AdminDashboardViewModel
     public int OrderCount { get; set; }
     public decimal TotalQuantity { get; set; }
     public decimal TotalSales { get; set; }
+    public int PendingOrder { get; set; }
+    public List<Customer> PendingCustomers { get; set; } = new();
     public List<Order_HDR> Orders { get; set; } = [];
 }

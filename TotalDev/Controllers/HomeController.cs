@@ -67,7 +67,8 @@ namespace TotalDev.Controllers
                     OrderCount = orders.Count,
                     TotalQuantity = orders.Sum(order => order.TotalQty),
                     TotalSales = orders.Sum(order => order.TotalAmount),
-                    Orders = orders
+                    Orders = orders,
+                    PendingOrder = await _customerService.GetPendingOrderCountAsync(reportDate)
                 };
 
                 return View(model);
@@ -97,6 +98,7 @@ namespace TotalDev.Controllers
         [HttpGet]
         public IActionResult Login()
         {
+            HttpContext.Session.Clear();
             return View();
         }
 
@@ -170,6 +172,13 @@ namespace TotalDev.Controllers
                 HttpContext.Session.Clear();
                 return RedirectToAction("Login", "Customer");
             }
+        }
+        [HttpGet]
+        public async Task<IActionResult> PendingCustomers(DateTime selectedDate)
+        {
+            var customers = await _customerService.GetPendingCustomersAsync(selectedDate);
+
+            return View(customers);
         }
     }
 }

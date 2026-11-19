@@ -1,0 +1,38 @@
+﻿@model List<Customer>
+
+<h4>Pending Order Customers</h4>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Sr.</th>
+            <th>Customer Name</th>
+            <th>Mobile Number</th>
+            <th>City</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @{
+            int sr = 1;
+        }
+
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@sr</td>
+                <td>@item.CustName</td>
+                <td>@item.Mobile</td>
+                <td>@item.City</td>
+            </tr>
+
+            sr++;
+        }
+    </tbody>
+</table>
+
+<a asp-controller="Home"
+   asp-action="Index"
+   class="btn btn-secondary">
+    <i class="bi bi-arrow-left"></i> Back to Dashboard
+</a>
